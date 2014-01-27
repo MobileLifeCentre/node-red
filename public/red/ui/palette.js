@@ -22,7 +22,7 @@ RED.palette = function() {
             d.id = "pn_"+nt;
             d.type = nt;
             
-            var label = /^(.*?)( in| out)?$/.exec(nt)[1];
+            var label = def.name || /^(.*?)( in| out)?$/.exec(nt)[1]; // TODO: this is hardcoded
             d.innerHTML = '<div class="palette_label">'+label+"</div>";
             d.className="palette_node";
             if (def.icon) {

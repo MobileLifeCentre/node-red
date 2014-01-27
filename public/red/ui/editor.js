@@ -17,11 +17,20 @@ RED.editor = function() {
     var editing_node = null;
     
     // TODO: should IMPORT/EXPORT get their own dialogs?
-    
+
+
     function showEditDialog(node) {
         editing_node = node;
         RED.view.state(RED.state.EDITING);
-        $("#dialog-form").html($("script[data-template-name='"+node.type+"']").html());
+        // VICTOR: this is to have subchilds
+        var cleanType = function(type) {
+            var firstDot = type.indexOf('.');
+            if (firstDot > -1) {
+                type = type.substr(0, firstDot);
+            }
+            return type;
+        } 
+        $("#dialog-form").html($("script[data-template-name='"+cleanType(node.type)+"']").html()); 
         if (node._def.defaults) {
             for (var d in node._def.defaults) {
                 var def = node._def.defaults[d];
@@ -74,7 +83,7 @@ RED.editor = function() {
         if (node._def.oneditprepare) {
             node._def.oneditprepare.call(node);
         }
-        $( "#dialog" ).dialog("option","title","Edit "+node.type+" node").dialog( "open" );
+        $( "#dialog" ).dialog("option","title","Edit "+ (node.name || node.type) +" node").dialog( "open" );
     }
     
     function validateNode(node) {
@@ -408,7 +417,7 @@ RED.editor = function() {
                         var configNode;
                         
                         if (configAdding) {
-                            configNode = {type:configType,id:configId,users:[]};
+                            configNode = {type:configType, id:configId,users:[]};
                             for (var d in configTypeDef.defaults) {
                                 var input = $("#node-config-input-"+d);
                                 configNode[d] = input.val();

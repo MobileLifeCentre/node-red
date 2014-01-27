@@ -142,6 +142,8 @@ RED.nodes = function() {
         var node = {};
         node.id = n.id;
         node.type = n.type;
+        node.cleanType = n.cleanType;
+        
         for (var d in n._def.defaults) {
             node[d] = n[d];
         }
@@ -293,6 +295,16 @@ RED.nodes = function() {
                             }
                         }
                         node.type = n.type;
+                        // VICTOR: this is to have subchilds
+                        var cleanType = function(type) {
+                            var firstDot = type.indexOf('.');
+                            if (firstDot > -1) {
+                                type = type.substr(0, firstDot);
+                                console.log(type);
+                            }
+                            return type;
+                        } 
+                        node.cleanType = cleanType(n.type);
                         node._def = def;
                         if (!node._def) {
                             node._def = {
@@ -314,7 +326,6 @@ RED.nodes = function() {
                                 }
                             }
                         }
-
                         addNode(node);
                         RED.editor.validateNode(node);
                         node_map[n.id] = node;
