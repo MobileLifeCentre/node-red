@@ -1,12 +1,15 @@
-window.Spacebrew = (function () {
-	var name = gup('name') || window.location.href; 
-	var server = gup('server') || 'localhost';
-	var port = gup('port') || '9000';
-	var debug = gup('debug') || false;
+var WebSocket = require("ws");
+
+module.exports = (function () {
+	var name = "node-red admin"; 
+	var server = 'localhost';
+	var port = '9000';
+	var debug = false;
 	var ws;
 	var reconnect_timer = undefined;
 	var Spacebrew;
 	var setupWebsocket = function() {
+		console.log("connecting");
 		ws = new WebSocket("ws://"+server+":" + Number(port));
 
 		ws.onopen = function() {
@@ -75,31 +78,44 @@ window.Spacebrew = (function () {
 
 	// Pampallugues
 	var handleMessageMsg = function(msg) {
-		//Spacebrew.onAddDevice(msg);
+		//Spacebrew.handleMsg(msg);
 	};
 
 	var handleConfigMsg = function(msg) {
 		Spacebrew.onAddDevice(msg);
+		console.log(new Date(), "add", msg);
 	};
 
 	var handleRemoveMsg = function(msg) {
-		
+		console.log(new Date(), "remove", msg);
 	};
 
 	var handleRouteMsg = function(msg) {
+		console.log(new Date(), "route", msg.type, msg);
 	};
 
-	//get the value of the requested key in the querystring
-	//if the key does not exist in the query string, returns the empty string
-	function gup( name ) {
-	  name = name.replace(/[\[]/,"\\\[").replace(/[\]]/,"\\\]");
-	  var regexS = "[\\?&]"+name+"=([^&#]*)";
-	  var regex = new RegExp( regexS );
-	  var results = regex.exec( window.location.href );
-	  if( results == null )
-	    return "";
-	  else
-	    return results[1];
+	var connectIOs = function (action, ioFrom, ioTo) {
+	        var msg = {
+	            "route":
+	            {
+	                "type": action,
+	                "publisher":
+	                    {
+	                        "clientName": ioFrom.clientName,
+	                        "name": ioFrom.name,
+	                        "type": ioFrom.type,
+	                        "remoteAddress": ioFrom.remoteAddress
+	                    },
+	                "subscriber":{
+	                    "clientName": ioTo.clientName,
+	                    "name": ioTo.name,
+	                    "type": ioTo.type,
+	                    "remoteAddress": ioTo.remoteAddress
+	                }
+	            }
+	        };
+	        console.log("trying to connect", ioFrom.clientName , " to ", ioTo.clientName);
+	        ws.send(JSON.stringify(msg));       
 	};
 
 	Spacebrew = {
@@ -116,6 +132,7 @@ window.Spacebrew = (function () {
 		onRemoveDevice: function(handler) {
 
 		},
+		connectIOs: connectIOs
 	};
 
 	Spacebrew.start();

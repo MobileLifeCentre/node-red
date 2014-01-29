@@ -1,0 +1,275 @@
+
+Welcome to Node-RED
+===================
+
+29 Jan 07:38:48 - [red] Loading palette nodes
+29 Jan 07:38:48 - ------------------------------------------
+29 Jan 07:38:48 - [73-parsexml.js] Note: Module 'eyes' not installed. (not needed, but useful)
+29 Jan 07:38:48 - [74-js2xml.js] Error: Cannot find module 'js2xmlparser'
+29 Jan 07:38:48 - [35-rpi-gpio-in.js] Error: Cannot find module 'pi-gpio'
+29 Jan 07:38:48 - [35-rpi-gpio-out.js] Error: Cannot find module 'pi-gpio'
+29 Jan 07:38:48 - [35-arduino.js] Error: Cannot find module 'firmata'
+connecting
+29 Jan 07:38:48 - [23-watch.js] Error: Cannot find module 'fs.notify'
+29 Jan 07:38:48 - [25-serial.js] Error: Cannot find module 'serialport'
+29 Jan 07:38:48 - [32-feedparse.js] Error: Cannot find module 'feedparser'
+29 Jan 07:38:48 - [61-email.js] Error: Cannot find module 'nodemailer'
+29 Jan 07:38:48 - [61-imap.js] Error: Cannot find module 'imap'
+29 Jan 07:38:48 - [65-redisout.js] Error: Cannot find module 'redis'
+29 Jan 07:38:48 - [66-mongodb.js] Error: Cannot find module 'mongodb'
+29 Jan 07:38:48 - 
+29 Jan 07:38:48 - You may ignore any errors above here if they are for
+29 Jan 07:38:48 - nodes you are not using. The nodes indicated will not
+29 Jan 07:38:48 - be available in the main palette until any missing
+29 Jan 07:38:48 - modules are installed, typically by running:
+29 Jan 07:38:48 -    npm install {the module name}
+29 Jan 07:38:48 - or any other errors are resolved
+29 Jan 07:38:48 - ------------------------------------------
+29 Jan 07:38:48 - [red] Server now running at http://127.0.0.1:1880/
+29 Jan 07:38:48 - [red] Loading flows : flows_guerre50-PC.json
+WebSockets connection opened
+29 Jan 07:38:48 - [red] Waiting for missing types to be registered:
+29 Jan 07:38:48 - [red]  - spacebrew.Gaphs
+29 Jan 07:38:48 - [red]  - spacebrew.SLIDERS
+29 Jan 07:38:54 - [red] Missing type registered: spacebrew.SLIDERS
+Wed Jan 29 2014 07:38:54 GMT+0100 (Romance Standard Time) 'add' { name: 'SLIDERS',
+  description: 'Sliders for sending and displaying SpaceBrew range messages.',
+  publish: { messages: [ [Object], [Object], [Object] ] },
+  subscribe: { messages: [ [Object], [Object], [Object] ] },
+  options: {},
+  remoteAddress: '127.0.0.1' }
+29 Jan 07:38:55 - [red] Missing type registered: spacebrew.Gaphs
+29 Jan 07:38:55 - [red] Starting flows
+Wed Jan 29 2014 07:38:55 GMT+0100 (Romance Standard Time) 'add' { name: 'Gaphs',
+  description: 'This is a client which can be used to visualize various outputs from any other publishers.',
+  publish: { messages: [] },
+  subscribe: { messages: [ [Object], [Object], [Object] ] },
+  remoteAddress: '127.0.0.1' }
+[_onOpen:Spacebrew] Spacebrew connection opened, client name is: red_nodee1c75da2.1e38a
+[_onOpen:Spacebrew] Spacebrew connection opened, client name is: red_nodeb468be1b.4b974
+Wed Jan 29 2014 07:38:55 GMT+0100 (Romance Standard Time) 'add' { name: 'red_nodee1c75da2.1e38a',
+  description: 'red-node generated node',
+  publish: { messages: [ [Object], [Object], [Object] ] },
+  subscribe: { messages: [] },
+  options: {},
+  remoteAddress: '127.0.0.1' }
+Wed Jan 29 2014 07:38:55 GMT+0100 (Romance Standard Time) 'add' { name: 'red_nodeb468be1b.4b974',
+  description: 'red-node generated node',
+  publish: { messages: [ [Object], [Object], [Object] ] },
+  subscribe: { messages: [ [Object], [Object], [Object] ] },
+  options: {},
+  remoteAddress: '127.0.0.1' }
+Wed Jan 29 2014 07:38:55 GMT+0100 (Romance Standard Time) 'route' 'add' { type: 'add',
+  publisher: 
+   { clientName: 'red_nodee1c75da2.1e38a',
+     name: 'line1',
+     type: 'range',
+     remoteAddress: '127.0.0.1' },
+  subscriber: 
+   { clientName: 'Gaphs',
+     name: 'line1',
+     type: 'range',
+     remoteAddress: '127.0.0.1' } }
+Wed Jan 29 2014 07:38:55 GMT+0100 (Romance Standard Time) 'route' 'add' { type: 'add',
+  publisher: 
+   { clientName: 'red_nodee1c75da2.1e38a',
+     name: 'line2',
+     type: 'range',
+     remoteAddress: '127.0.0.1' },
+  subscriber: 
+   { clientName: 'Gaphs',
+     name: 'line2',
+     type: 'range',
+     remoteAddress: '127.0.0.1' } }
+Wed Jan 29 2014 07:38:55 GMT+0100 (Romance Standard Time) 'route' 'add' { type: 'add',
+  publisher: 
+   { clientName: 'red_nodee1c75da2.1e38a',
+     name: 'line3',
+     type: 'range',
+     remoteAddress: '127.0.0.1' },
+  subscriber: 
+   { clientName: 'Gaphs',
+     name: 'line3',
+     type: 'range',
+     remoteAddress: '127.0.0.1' } }
+Wed Jan 29 2014 07:38:55 GMT+0100 (Romance Standard Time) 'route' 'add' { type: 'add',
+  publisher: 
+   { clientName: 'SLIDERS',
+     name: 'slider1',
+     type: 'range',
+     remoteAddress: '127.0.0.1' },
+  subscriber: 
+   { clientName: 'red_nodeb468be1b.4b974',
+     name: 'slider1',
+     type: 'range',
+     remoteAddress: '127.0.0.1' } }
+Wed Jan 29 2014 07:38:55 GMT+0100 (Romance Standard Time) 'route' 'add' { type: 'add',
+  publisher: 
+   { clientName: 'SLIDERS',
+     name: 'slider2',
+     type: 'range',
+     remoteAddress: '127.0.0.1' },
+  subscriber: 
+   { clientName: 'red_nodeb468be1b.4b974',
+     name: 'slider2',
+     type: 'range',
+     remoteAddress: '127.0.0.1' } }
+Wed Jan 29 2014 07:38:55 GMT+0100 (Romance Standard Time) 'route' 'add' { type: 'add',
+  publisher: 
+   { clientName: 'SLIDERS',
+     name: 'slider3',
+     type: 'range',
+     remoteAddress: '127.0.0.1' },
+  subscriber: 
+   { clientName: 'red_nodeb468be1b.4b974',
+     name: 'slider3',
+     type: 'range',
+     remoteAddress: '127.0.0.1' } }
+Wed Jan 29 2014 07:38:55 GMT+0100 (Romance Standard Time) 'route' 'add' { type: 'add',
+  publisher: 
+   { clientName: 'red_nodeb468be1b.4b974',
+     name: 'slider1',
+     type: 'range',
+     remoteAddress: '127.0.0.1' },
+  subscriber: 
+   { clientName: 'SLIDERS',
+     name: 'slider1',
+     type: 'range',
+     remoteAddress: '127.0.0.1' } }
+Wed Jan 29 2014 07:38:55 GMT+0100 (Romance Standard Time) 'route' 'add' { type: 'add',
+  publisher: 
+   { clientName: 'red_nodeb468be1b.4b974',
+     name: 'slider2',
+     type: 'range',
+     remoteAddress: '127.0.0.1' },
+  subscriber: 
+   { clientName: 'SLIDERS',
+     name: 'slider2',
+     type: 'range',
+     remoteAddress: '127.0.0.1' } }
+Wed Jan 29 2014 07:38:55 GMT+0100 (Romance Standard Time) 'route' 'add' { type: 'add',
+  publisher: 
+   { clientName: 'red_nodeb468be1b.4b974',
+     name: 'slider3',
+     type: 'range',
+     remoteAddress: '127.0.0.1' },
+  subscriber: 
+   { clientName: 'SLIDERS',
+     name: 'slider3',
+     type: 'range',
+     remoteAddress: '127.0.0.1' } }
+Wed Jan 29 2014 07:38:56 GMT+0100 (Romance Standard Time) 'add' { name: 'Button',
+  description: 'This spacebrew client sends and receives boolean messages.',
+  publish: { messages: [ [Object] ] },
+  subscribe: { messages: [ [Object] ] },
+  options: {},
+  remoteAddress: '127.0.0.1' }
+trying to connect red_nodee1c75da2.1e38a  to  Gaphs
+trying to connect red_nodee1c75da2.1e38a  to  Gaphs
+trying to connect red_nodee1c75da2.1e38a  to  Gaphs
+trying to connect SLIDERS  to  red_nodeb468be1b.4b974
+trying to connect SLIDERS  to  red_nodeb468be1b.4b974
+trying to connect SLIDERS  to  red_nodeb468be1b.4b974
+trying to connect red_nodeb468be1b.4b974  to  SLIDERS
+trying to connect red_nodeb468be1b.4b974  to  SLIDERS
+trying to connect red_nodeb468be1b.4b974  to  SLIDERS
+Wed Jan 29 2014 07:39:04 GMT+0100 (Romance Standard Time) 'remove' []
+Wed Jan 29 2014 07:39:04 GMT+0100 (Romance Standard Time) 'remove' []
+Wed Jan 29 2014 07:39:04 GMT+0100 (Romance Standard Time) 'remove' []
+Wed Jan 29 2014 07:39:04 GMT+0100 (Romance Standard Time) 'remove' []
+Wed Jan 29 2014 07:39:04 GMT+0100 (Romance Standard Time) 'remove' []
+Wed Jan 29 2014 07:39:04 GMT+0100 (Romance Standard Time) 'remove' []
+Wed Jan 29 2014 07:39:04 GMT+0100 (Romance Standard Time) 'remove' []
+Wed Jan 29 2014 07:39:05 GMT+0100 (Romance Standard Time) 'route' 'remove' { type: 'remove',
+  client_disconnect: true,
+  publisher: 
+   { clientName: 'red_nodee1c75da2.1e38a',
+     name: 'line3',
+     type: 'range',
+     remoteAddress: '127.0.0.1' },
+  subscriber: 
+   { clientName: 'Gaphs',
+     name: 'line3',
+     type: 'range',
+     remoteAddress: '127.0.0.1' } }
+Wed Jan 29 2014 07:39:05 GMT+0100 (Romance Standard Time) 'route' 'remove' { type: 'remove',
+  client_disconnect: true,
+  publisher: 
+   { clientName: 'red_nodee1c75da2.1e38a',
+     name: 'line2',
+     type: 'range',
+     remoteAddress: '127.0.0.1' },
+  subscriber: 
+   { clientName: 'Gaphs',
+     name: 'line2',
+     type: 'range',
+     remoteAddress: '127.0.0.1' } }
+Wed Jan 29 2014 07:39:05 GMT+0100 (Romance Standard Time) 'route' 'remove' { type: 'remove',
+  client_disconnect: true,
+  publisher: 
+   { clientName: 'red_nodee1c75da2.1e38a',
+     name: 'line1',
+     type: 'range',
+     remoteAddress: '127.0.0.1' },
+  subscriber: 
+   { clientName: 'Gaphs',
+     name: 'line1',
+     type: 'range',
+     remoteAddress: '127.0.0.1' } }
+Wed Jan 29 2014 07:39:05 GMT+0100 (Romance Standard Time) 'remove' { name: 'Gaphs', remoteAddress: '127.0.0.1' }
+Wed Jan 29 2014 07:39:05 GMT+0100 (Romance Standard Time) 'add' { name: 'Gaphs',
+  description: 'This is a client which can be used to visualize various outputs from any other publishers.',
+  publish: { messages: [] },
+  subscribe: { messages: [ [Object], [Object], [Object] ] },
+  remoteAddress: '127.0.0.1' }
+Wed Jan 29 2014 07:39:05 GMT+0100 (Romance Standard Time) 'route' 'add' { type: 'add',
+  publisher: 
+   { clientName: 'red_nodee1c75da2.1e38a',
+     name: 'line1',
+     type: 'range',
+     remoteAddress: '127.0.0.1' },
+  subscriber: 
+   { clientName: 'Gaphs',
+     name: 'line1',
+     type: 'range',
+     remoteAddress: '127.0.0.1' } }
+Wed Jan 29 2014 07:39:05 GMT+0100 (Romance Standard Time) 'route' 'add' { type: 'add',
+  publisher: 
+   { clientName: 'red_nodee1c75da2.1e38a',
+     name: 'line2',
+     type: 'range',
+     remoteAddress: '127.0.0.1' },
+  subscriber: 
+   { clientName: 'Gaphs',
+     name: 'line2',
+     type: 'range',
+     remoteAddress: '127.0.0.1' } }
+Wed Jan 29 2014 07:39:05 GMT+0100 (Romance Standard Time) 'route' 'add' { type: 'add',
+  publisher: 
+   { clientName: 'red_nodee1c75da2.1e38a',
+     name: 'line3',
+     type: 'range',
+     remoteAddress: '127.0.0.1' },
+  subscriber: 
+   { clientName: 'Gaphs',
+     name: 'line3',
+     type: 'range',
+     remoteAddress: '127.0.0.1' } }
+[ws.onclose] WebSockets connection closed
+[_onClose:Spacebrew] Spacebrew connection closed
+[_onClose:Spacebrew] setting up reconnect timer
+[_onClose:Spacebrew] Spacebrew connection closed
+[_onClose:Spacebrew] setting up reconnect timer
+[reconnect_timer] attempting to reconnect to spacebrew
+29 Jan 07:39:15 - [red] Uncaught Exception:
+29 Jan 07:39:15 - ReferenceError: removeAllClients is not defined
+    at Timer.<anonymous> (C:\Users\guerre50\Dropbox\GameJam\repo\node-red\nodes\core\io\lib\spacebrew.js:54:6)
+    at Timer.exports.setInterval.timer.ontimeout (timers.js:234:14)
+
+Message: removeAllClients is not defined
+
+Stacktrace:
+====================
+ReferenceError: removeAllClients is not defined
+    at Timer.<anonymous> (C:\Users\guerre50\Dropbox\GameJam\repo\node-red\nodes\core\io\lib\spacebrew.js:54:6)
+    at Timer.exports.setInterval.timer.ontimeout (timers.js:234:14)

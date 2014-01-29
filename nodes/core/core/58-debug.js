@@ -33,10 +33,17 @@ function DebugNode(n) {
 				msg.payload = "(Buffer) "+msg.payload.toString();
 			}
 			if (this.complete == "true") {
-				DebugNode.send({id:this.id,name:this.name,topic:msg.topic,msg:msg,_path:msg._path});
+				if (msg.topic) {
+					DebugNode.send({id:this.id,name:this.name,topic:msg.topic,msg:msg,_path:msg._path});
+				} else {
+					DebugNode.send({id:this.id,name:this.name,msg:msg});
+				}
 			} else {
 				if (typeof msg.payload !== "undefined") {
 					DebugNode.send({id:this.id,name:this.name,topic:msg.topic,msg:msg.payload,_path:msg._path});
+				} else {
+					console.log("FASFDS");
+					DebugNode.send({id:this.id,name:this.name,msg:msg});
 				}
 			}
 		}

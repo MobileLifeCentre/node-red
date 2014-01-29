@@ -93,6 +93,7 @@ process.on('uncaughtException',function(err) {
         } else {
             util.log('[red] Uncaught Exception:');
             util.log(err.stack);
+            util.log(util.dumpError(err));
         }
         process.exit(1);
 });

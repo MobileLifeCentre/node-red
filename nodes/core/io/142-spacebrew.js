@@ -18,196 +18,176 @@
 var RED = require(process.env.NODE_RED_HOME+"/red/red"),
     ws = require("ws"),
     inspect = require("sys").inspect,
-    rfleabrew = {};
+    rfleabrew = {},
+    spacebrew = require("./lib/spacebrew"),
+    SpacebrewClient = require("./lib/spacebrewClient"),
+    _spacebrewNodes = [],
+    _redNodeSpacebrewListeners = [];
 
 // ====================
 // rfleabrew
 // ====================
+spacebrew.onAddDevice = processConfig;
 
-createServer();
-function createServer() {
-    rfleabrew.server = new ws.Server({server:RED.server, path:"/rflea"});
-    rfleabrew._clients = [];
-
-    rfleabrew.server.on('connection', function(socket) {
-        var id = (1+Math.random()*4294967295).toString(16);
-        rfleabrew._clients[id] = socket;
-
-        console.log("new connection");
-        socket.on('close',function() {
-            delete rfleabrew._clients[id];
-        });
-        socket.on('message', function(data, flags) {
-            processRfleabrewMessage(id, socket, data, flags);
-        });
-    });
+function processConfig(message) {
+    // We don't have to add the node-red nodes
+    if (_redNodeSpacebrewListeners[message.name]) return;
+    var type = "spacebrew."+message.name;
+    _spacebrewNodes[type] = message;
+    RED.nodes.registerType(type, SpacebrewNode);
 }
 
-function processRfleabrewMessage(id, socket, message, flags) {
-    if (message.hasOwnProperty("message")) {
-        processMessage(message["message"]);
-    } else if (message.hasOwnProperty("config")) {
-        processConfig(id, message["config"]);
-    }
-}
-
-function processMessage(message) {
-    console.log(message);
-}
-
-function processConfig(id, message) {
-    rfleabrew._clients[id].config = message;
-} 
-
-// ====================
-// Plugin itself
-// ====================
-
-// A node red node that sets up a local websocket server
-function rFleaListenerNode(n) {
-    // Create a RED node
+function SpacebrewNode(n) {
     RED.nodes.createNode(this, n);
-
     var node = this;
 
-    // Store local copies of the node configuration (as defined in the .html)
-    node.path = n.path;
-    node.wholemsg = (n.wholemsg === "true");
-    
-    node._inputNodes = [];    // collection of nodes that want to receive events
-    
-    var path = RED.settings.httpRoot || "/";
-    path = path + (path.slice(-1) == "/" ? "":"/") + (node.path.charAt(0) == "/" ? node.path.substring(1) : node.path);
+    // Set up names
+    var app_name = "red_node" + n.id,
+        sb = _redNodeSpacebrewListeners[app_name];
 
-    // Workaround https://github.com/einaros/ws/pull/253
-    // Listen for 'newListener' events from RED.server
-    node._serverListeners = {};
 
-    var storeListener = function(/*String*/event,/*function*/listener){
-        if(event == "error" || event == "upgrade" || event == "listening"){
-            node._serverListeners[event] = listener;
-        }
-    }
+    if (sb == null || sb == undefined) {
 
-    node._clients = {};
-    
-    RED.server.addListener('newListener',storeListener);
-
-    // Create a WebSocket Server
-    node.server = new ws.Server({server:RED.server, path:"/rflea"});
-
-    // Workaround https://github.com/einaros/ws/pull/253
-    // Stop listening for new listener events
-    RED.server.removeListener('newListener',storeListener);
-
-    node.server.on('connection', function(socket){
-        var id = (1+Math.random()*4294967295).toString(16);
-        node._clients[id] = socket;
         console.log("new connection");
-        socket.on('close',function() {
-            delete node._clients[id];
+        sb = new SpacebrewClient.Spacebrew.Client({
+            reconnect: true,
+            server: "localhost",
+            port: 9000
         });
-        socket.on('message',function(data,flags){
-            node.handleEvent(id,socket,'message',data,flags);
-        });
-    });
+        
+        if (app_name)
+        sb.name(app_name);
+        sb.description("red-node generated node");
+        _redNodeSpacebrewListeners[sb._name] = sb;
 
-    node.on("close", function() {
-        // Workaround https://github.com/einaros/ws/pull/253
-        // Remove listeners from RED.server
-        var listener = null;
-        for(var event in node._serverListeners){
-            listener = node._serverListeners[event];
-            if(typeof listener === "function"){
-                RED.server.removeListener(event,listener);
+        var device = _spacebrewNodes[n.type];
+
+        // Publish of the Spacebrew subscribe
+        var publishers = device.publish.messages;
+        for (var i in publishers) {
+            var publisher = publishers[i];
+            sb.addSubscribe(publisher.name, publisher.type);
+        }
+
+        var extra = fromDevice,
+            fromDevice = toDevice,
+            toDevice = extra;
+
+        // Subscribe of the Spacebrew publish
+        var subscribers = device.subscribe.messages;
+        for (var j in subscribers) {
+            var subscriber = subscribers[j];
+            sb.addPublish(subscriber.name, subscriber.type);
+        }
+
+        sb.onOpen = function() {
+            setTimeout(function() {
+                connectIOs(n, sb)
+            }, 3000);
+            sb.onOpen = function() {
+            };
+        }
+
+
+
+        // Adding the spacebrew into the clients
+        sb.connect();
+    }
+
+
+    // Binding spacebrew -> red-node
+    sb.onBooleanMessage = redirect;
+    sb.onRangeMessage = redirect;
+    sb.onCustomMessage = redirect;
+    sb.onStringMessage = redirect;
+
+    function redirect(name, msg) {
+
+        // node-red uses a weird system in which you can send an array
+        // containing all the wires that are going to be destiny
+        var msgs = [];
+        var subscribers = this.client_config.subscribe.messages;
+        for (var i = 0; i < subscribers.length; ++i) {
+            if (subscribers[i].name == name) {
+                msgs.push(msg);
+            } else {
+                msgs.push(null);
             }
         }
-        node._serverListeners = {};
+        node.send(msgs);
+    }
 
-        node.server.close();
-        node._inputNodes = [];
-    });
-}
-RED.nodes.registerType("rflea-listener", rFleaListenerNode);
-
-rFleaListenerNode.prototype.registerInputNode = function(/*Node*/handler){
-    this._inputNodes.push(handler);
-}
-
-rFleaListenerNode.prototype.handleEvent = function(id,/*socket*/socket,/*String*/event,/*Object*/data,/*Object*/flags){
-    var msg;
-    if (this.wholemsg) {
-        msg = JSON.parse(data);
-    } else {
-        msg = {
-            payload:data
+    function connectIOs(n, sb) {
+        var device = _spacebrewNodes[n.type];
+        var fromDevice = {
+            clientName: sb._name,
+            name:"",
+            type:"",
+            remoteAddress: "127.0.0.1"
+        },
+        toDevice = {
+            clientName: device.name,
+            name:"",
+            type:"",
+            remoteAddress: device.remoteAddress
         };
-    }
-    msg._session = {type:"rflea", id: id};
-    
-    for (var i = 0; i < this._inputNodes.length; i++) {
-        this._inputNodes[i].send(msg);
-    };
-}
 
-rFleaListenerNode.prototype.broadcast = function(data){
-    for(var i in this.server.clients){
-        this.server.clients[i].send(data);
-    };
-}
+        // Publish of the Spacebrew subscribe
+        var publishers = device.publish.messages;
+        for (var i in publishers) {
+            var publisher = publishers[i];
+            // define IO
+            fromDevice.name = publisher.name;
+            toDevice.name = publisher.name;
+            toDevice.type = publisher.type;
+            fromDevice.type = publisher.type;
 
-rFleaListenerNode.prototype.send = function(id, data){
-    var session = this._clients[id];
-    if (session) {
-        session.send(data);
-    }
-}
-
-function rFleaInNode(n) {
-    RED.nodes.createNode(this,n);
-    this.server = n.server;
-    var node = this;
-    this.serverConfig = RED.nodes.getNode(this.server);
-    if (this.serverConfig) {
-        this.serverConfig.registerInputNode(this);
-    } else {
-        this.error("Missing server configuration");
-    }
-}
-RED.nodes.registerType("rflea in",rFleaInNode);
-
-function rFleaOutNode(n) {
-    RED.nodes.createNode(this,n);
-    var node = this;
-    this.server = n.server;
-    this.serverConfig = RED.nodes.getNode(this.server);
-    if (!this.serverConfig) {
-        this.error("Missing server configuration");
-    }
-    this.on("input", function(msg) {
-        var payload;
-        if (this.serverConfig.wholemsg) {
-            delete msg._session;
-            payload = JSON.stringify(msg);
-        } else {
-            payload = msg.payload;
-            if (Buffer.isBuffer(payload)) {
-                payload = payload.toString();
-            } else if (typeof payload === "object") {
-                payload = JSON.stringify(payload);
-            } else if (typeof payload !== "string") {
-                payload = ""+payload;
-            }
+            // connect to IO
+            spacebrew.connectIOs("add", toDevice, fromDevice);
         }
-        if (msg._session && msg._session.type == "rflea") {
-            node.serverConfig.send(msg._session.id,payload);
-        } else {
-            node.serverConfig.broadcast(payload,function(error){
-                if(!!error){
-                    node.warn("An error occurred while sending:" + inspect(error));
+
+        // Subscribe of the Spacebrew publish
+        var subscribers = device.subscribe.messages;
+        for (var j in subscribers) {
+            var subscriber = subscribers[j];
+            // define IO
+            fromDevice.name = subscriber.name;
+            toDevice.name = subscriber.name;
+            fromDevice.type = subscriber.type;
+            toDevice.type = subscriber.type;
+            // connect to IO
+            spacebrew.connectIOs("add", fromDevice, toDevice);
+        }
+    }
+
+    // Binding red-node -> Spacebrew
+    node.on("close", function() {
+        //sb.reconnect = false;
+        //sb.close();
+    });
+
+    node.on("input", function(msg) {
+        var subscribers = sb.client_config.publish.messages;
+        var message;
+        console.log("received", msg);
+        for (var i in subscribers) {
+            var subscriber = subscribers[i];
+            if (msg[i] != null || typeof(msg) != typeof([])) {
+                if (msg[i]) {
+                    message = msg[i];
+                } else {
+                    message = msg;
                 }
-            });
+                if (message.payload) {
+                    message = message.payload;
+                }
+                console.log(">>> enviant a spacebrew", sb.isConnected(), typeof(message));
+                sb.send(subscriber.name, subscriber.type, message);
+            }
+            
         }
     });
+
+
+    
 }
-RED.nodes.registerType("rflea out",rFleaOutNode);

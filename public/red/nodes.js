@@ -160,6 +160,17 @@ RED.nodes = function() {
                 var w = wires[i];
                 node.wires[w.sourcePort].push(w.target.id);
             }
+
+            node.wiresIn = [];
+            for(var i=0;i<n.inputs;i++) {
+                node.wiresIn.push([]);
+            }
+            var wiresIn = links.filter(function(d){return d.target === n;});
+            for (var i in wiresIn) {
+                var w = wiresIn[i];
+                node.wiresIn[w.targetPort].push({id: w.source.id, source: w.sourcePort});
+            }
+
         }
         return node;
     }
@@ -228,7 +239,7 @@ RED.nodes = function() {
             for (var i in newNodes) {
                 var n = newNodes[i];
                 // TODO: remove workspace in next release+1
-                if (n.type != "workspace" && n.type != "tab" && !getType(n.type)) {
+                if (n.type != "workspace" && n.type != "tab" && (!getType(n.type) && n.type.indexOf("spacebrew.") != 0)) {
                     // TODO: get this UI thing out of here! (see below as well)
                     n.name = n.type;
                     n.type = "unknown";
@@ -284,7 +295,7 @@ RED.nodes = function() {
                             RED.nodes.add(configNode);
                         }
                     } else {
-                        var node = {x:n.x,y:n.y,z:n.z,type:0,wires:n.wires,changed:false};
+                        var node = {x:n.x,y:n.y,z:n.z,type:0,wires:n.wires, wiresIn:n.wiresIn, changed:false};
                         if (createNewIds) {
                             node.z = RED.view.getWorkspace();
                             node.id = getID();
@@ -300,7 +311,6 @@ RED.nodes = function() {
                             var firstDot = type.indexOf('.');
                             if (firstDot > -1) {
                                 type = type.substr(0, firstDot);
-                                console.log(type);
                             }
                             return type;
                         } 
@@ -312,10 +322,12 @@ RED.nodes = function() {
                                 defaults: {},
                                 label: "unknown: "+n.type,
                                 labelStyle: "node_label_italic",
-                                outputs: n.outputs||n.wires.length
+                                outputs: n.outputs||n.wires.length,
+                                inputs: n.inputs||n.wiresIn.length
                             }
                         }
                         node.outputs = n.outputs||node._def.outputs;
+                        node.inputs = n.inputs||node._def.inputs;
 
                         for (var d in node._def.defaults) {
                             node[d] = n[d];
@@ -337,9 +349,15 @@ RED.nodes = function() {
                 var n = new_nodes[i];
                 for (var w1 in n.wires) {
                     var wires = (n.wires[w1] instanceof Array)?n.wires[w1]:[n.wires[w1]];
+
                     for (var w2 in wires) {
                         if (wires[w2] in node_map) {
-                            var link = {source:n,sourcePort:w1,target:node_map[wires[w2]]};
+                            var link = {
+                                source:n,
+                                sourcePort: w1,
+                                target: node_map[wires[w2]],
+                                targetPort: w2
+                            };
                             addLink(link);
                             new_links.push(link);
                         }
@@ -347,7 +365,7 @@ RED.nodes = function() {
                 }
                 delete n.wires;
             }
-            return [new_nodes,new_links];
+            return [new_nodes, new_links];
         } catch(error) {
             //TODO: get this UI thing out of here! (see above as well)
             RED.notify("<strong>Error</strong>: "+error,"error");

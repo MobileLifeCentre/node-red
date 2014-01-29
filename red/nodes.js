@@ -21,6 +21,23 @@ var clone = require("clone");
 var events = require("./events");
 var storage = null;
 
+
+util.dumpError = function(err) {
+  if (typeof err === 'object') {
+    if (err.message) {
+      console.log('\nMessage: ' + err.message)
+    }
+    if (err.stack) {
+      console.log('\nStacktrace:')
+      console.log('====================')
+      console.log(err.stack);
+    }
+  } else {
+    console.log('dumpError :: argument is not an object');
+  }
+};
+
+
 function getCallerFilename(type) {
     //if (type == "summary") {
     //    var err = new Error();
@@ -131,6 +148,7 @@ function Node(n) {
         this.name = n.name;
     }
     this.wires = n.wires||[];
+    this.wiresIn = n.wiresIn||[];
 }
 util.inherits(Node,EventEmitter);
 
@@ -141,6 +159,7 @@ Node.prototype.close = function() {
 
 
 Node.prototype.send = function(msg) {
+    console.log("starting to send", msg);
     // instanceof doesn't work for some reason here
     if (msg == null) {
         msg = [];
@@ -182,6 +201,29 @@ Node.prototype.send = function(msg) {
                                 m.res = res;
                                 mm.req = req;
                                 mm.res = res;
+
+                                if (node.wiresIn.length > 0) {
+                                    var newMessage = [];
+                                    for (var l in node.wiresIn) {
+                                        var found = false;
+                                        for (var n in node.wiresIn[l]) {
+                                            var wireIn = node.wiresIn[l][n];
+
+                                            if (wireIn.id == this.id && parseInt(wireIn.source) == i) {
+                                                found = true;
+                                                break;
+                                            }
+                                        }
+
+                                        if (found) {
+                                            newMessage.push(m);
+                                        } else {
+                                            newMessage.push(null);
+                                        }
+                                    }
+                                    m = newMessage;
+                                }
+                                console.log("sending to", node, m);
                                 node.receive(m);
                             }
                         }
@@ -349,7 +391,7 @@ var parseConfig = function() {
                     nn = new nt(activeConfig[i]);
                 }
                 catch (err) {
-                    util.log("[red] "+activeConfig[i].type+" : "+err);
+                    util.log("[red] "+activeConfig[i].type+" : "+ util.dumpError(err));
                 }
             }
             // console.log(nn);
