@@ -10,7 +10,7 @@ var SpacebrewNode = (function(Spacebrew) {
 		        category: 'devices',
 		        defaults: {
 		            name: {
-		            	value: device.name
+		            	value: (device.nameLabel? device.nameLabel: device.name)
 		            },
 		            server: {
 		                type:"rflea-listener"
@@ -20,7 +20,7 @@ var SpacebrewNode = (function(Spacebrew) {
 		        inputs: (device.subscribe != undefined ? device.subscribe.messages.length : 0),
 		        outputs: (device.publish != undefined ? device.publish.messages.length : 0),
 		        icon: "white-globe.png",
-		        name: device.name,
+		        name: (device.nameLabel? device.nameLabel: device.name),
 		        label: function() {
 		            return this.name || device.name;
 		        },
