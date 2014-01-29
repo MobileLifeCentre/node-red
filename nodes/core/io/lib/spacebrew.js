@@ -83,15 +83,12 @@ module.exports = (function () {
 
 	var handleConfigMsg = function(msg) {
 		Spacebrew.onAddDevice(msg);
-		console.log(new Date(), "add", msg);
 	};
 
 	var handleRemoveMsg = function(msg) {
-		console.log(new Date(), "remove", msg);
 	};
 
 	var handleRouteMsg = function(msg) {
-		console.log(new Date(), "route", msg.type, msg);
 	};
 
 	var connectIOs = function (action, ioFrom, ioTo) {

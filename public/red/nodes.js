@@ -283,6 +283,15 @@ RED.nodes = function() {
                 var n = newNodes[i];
                 // TODO: remove workspace in next release+1
                 if (n.type !== "workspace" && n.type !== "tab") {
+                    // VICTOR: this is to have subchilds
+                    var cleanType = function(type) {
+                        var firstDot = type.indexOf('.');
+                        if (firstDot > -1) {
+                            type = type.substr(0, firstDot);
+                        }
+                        return type;
+                    } 
+                    n.type = cleanType(n.type);
                     var def = getType(n.type);
                     if (def && def.category == "config") {
                         if (!RED.nodes.node(n.id)) {
@@ -306,14 +315,6 @@ RED.nodes = function() {
                             }
                         }
                         node.type = n.type;
-                        // VICTOR: this is to have subchilds
-                        var cleanType = function(type) {
-                            var firstDot = type.indexOf('.');
-                            if (firstDot > -1) {
-                                type = type.substr(0, firstDot);
-                            }
-                            return type;
-                        } 
                         node.cleanType = cleanType(n.type);
                         node._def = def;
                         if (!node._def) {

@@ -27,13 +27,24 @@ var RED = require(process.env.NODE_RED_HOME+"/red/red"),
 // ====================
 // rfleabrew
 // ====================
+function SpacebrewNodeBase(n) {
+    RED.nodes.createNode(this,n);
+}
+
+RED.nodes.registerType("spacebrew", SpacebrewNodeBase);
+
+
+
 spacebrew.onAddDevice = processConfig;
 
 function processConfig(message) {
     // We don't have to add the node-red nodes
-    if (_redNodeSpacebrewListeners[message.name]) return;
+    if (message.name.indexOf("red_node") == 0) return;
+    
     var type = "spacebrew."+message.name;
     _spacebrewNodes[type] = message;
+
+    console.log("registering type node", type);
     RED.nodes.registerType(type, SpacebrewNode);
 }
 
@@ -187,7 +198,5 @@ function SpacebrewNode(n) {
             
         }
     });
-
-
-    
 }
+
