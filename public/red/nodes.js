@@ -28,6 +28,13 @@ RED.nodes = function() {
         RED.palette.add(nt,def);
     }
 
+    function unregisterType(nt, def) {
+        delete node_defs[nt];
+
+        // TODO: too tightly coupled into palette UI
+        RED.palette.remove(nt, def);
+    }
+
     function getID() {
         return (1+Math.random()*4294967295).toString(16);
     }
@@ -317,7 +324,8 @@ RED.nodes = function() {
                         }
                         node.type = n.type;
                         node.cleanType = cleanType(n.type);
-                        node._def = def;
+                        node._def = jQuery.extend(true, {}, def);
+                        console.log(node._def);
                         if (!node._def) {
                             node._def = {
                                 color:"#fee",
@@ -335,6 +343,7 @@ RED.nodes = function() {
 
                         node.outputs = n.outputs||node._def.outputs;
                         node.inputs = n.inputs||node._def.inputs;
+
                       
                         for (var d in node._def.defaults) {
                             node[d] = n[d];
@@ -383,6 +392,7 @@ RED.nodes = function() {
 
     return {
         registerType: registerType,
+        unregisterType: unregisterType,
         getType: getType,
         convertNode: convertNode,
         add: addNode,

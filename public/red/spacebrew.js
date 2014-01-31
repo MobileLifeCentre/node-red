@@ -57,6 +57,7 @@ window.Spacebrew = (function () {
 	};
 
 	var handleMsg = function(json) {
+		console.log(json);
 		if (json.config) {
 			handleConfigMsg(json.config);
 		} else if (json.message) {
@@ -83,7 +84,7 @@ window.Spacebrew = (function () {
 	};
 
 	var handleRemoveMsg = function(msg) {
-		
+		Spacebrew.onRemoveDevice(msg);
 	};
 
 	var handleRouteMsg = function(msg) {

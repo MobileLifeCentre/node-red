@@ -5,9 +5,6 @@ var SpacebrewNode = (function(Spacebrew) {
         defaults: {
             name: {
             	value: "spacebrew"
-            },
-            server: {
-                type:"rflea-listener"
             }
         },
         color:"rgb(215, 215, 160)",
@@ -22,6 +19,13 @@ var SpacebrewNode = (function(Spacebrew) {
     });
 
 	Spacebrew.onAddDevice = onAddDevice;
+	Spacebrew.onRemoveDevice = onRemoveDevice;
+
+	function onRemoveDevice(device) {
+		console.log(device);
+		var type = "spacebrew." + device.name;
+		RED.nodes.unregisterType(type);
+	}
 
 	function onAddDevice(device) {
 		var type = "spacebrew." + device.name;
@@ -33,9 +37,6 @@ var SpacebrewNode = (function(Spacebrew) {
 		        defaults: {
 		            name: {
 		            	value: (device.nameLabel? device.nameLabel: device.name)
-		            },
-		            server: {
-		                type:"rflea-listener"
 		            }
 		        },
 		        color:"rgb(215, 215, 160)",

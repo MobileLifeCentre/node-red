@@ -74,6 +74,13 @@ RED.palette = function() {
             });
         }
     }
+
+
+    function removeNodeType(nt) {
+        var id = "#pn_"+nt;
+        console.log($(id));
+        $(id).hide();
+    }
     
     $(".palette-header").click(
         function(e) {
@@ -83,6 +90,7 @@ RED.palette = function() {
 
     
     return {
-        add:addNodeType
+        add:addNodeType,
+        remove:removeNodeType
     };
 }();

@@ -192,7 +192,7 @@ function SpacebrewNode(n) {
                 if (message.payload) {
                     message = message.payload;
                 }
-                console.log(">>> enviant a spacebrew", sb.isConnected(), typeof(message));
+                console.log(">>> enviant a spacebrew", subscriber.name, message);
                 sb.send(subscriber.name, subscriber.type, message);
             }
             
