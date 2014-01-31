@@ -57,7 +57,6 @@ window.Spacebrew = (function () {
 	};
 
 	var handleMsg = function(json) {
-		console.log(json);
 		if (json.config) {
 			handleConfigMsg(json.config);
 		} else if (json.message) {
