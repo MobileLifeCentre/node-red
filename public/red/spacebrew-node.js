@@ -22,7 +22,6 @@ var SpacebrewNode = (function(Spacebrew) {
 	Spacebrew.onRemoveDevice = onRemoveDevice;
 
 	function onRemoveDevice(device) {
-		console.log(device);
 		var type = "spacebrew." + device.name;
 		RED.nodes.unregisterType(type);
 	}

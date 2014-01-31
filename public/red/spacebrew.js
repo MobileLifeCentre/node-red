@@ -84,7 +84,10 @@ window.Spacebrew = (function () {
 	};
 
 	var handleRemoveMsg = function(msg) {
-		Spacebrew.onRemoveDevice(msg);
+		for (var i in msg) {
+			Spacebrew.onRemoveDevice(msg[i]);
+		}
+		
 	};
 
 	var handleRouteMsg = function(msg) {

@@ -677,3 +677,7 @@ ul.red-ui-tabs li.red-ui-add-tab {
 ul.red-ui-tabs li.red-ui-add-tab a {
     padding: 2px 4px;
 }
+
+.disconnected {
+  opacity: 0.2;
+}

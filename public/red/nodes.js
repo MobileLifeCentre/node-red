@@ -32,7 +32,7 @@ RED.nodes = function() {
         delete node_defs[nt];
 
         // TODO: too tightly coupled into palette UI
-        RED.palette.remove(nt, def);
+        RED.palette.remove(nt);
     }
 
     function getID() {
@@ -324,8 +324,10 @@ RED.nodes = function() {
                         }
                         node.type = n.type;
                         node.cleanType = cleanType(n.type);
+                        // We need to copy the def otherwise if someone changes it
+                        // we are changing it for everyone
                         node._def = jQuery.extend(true, {}, def);
-                        console.log(node._def);
+                        
                         if (!node._def) {
                             node._def = {
                                 color:"#fee",
