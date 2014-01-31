@@ -202,7 +202,7 @@ Node.prototype.send = function(msg) {
                                 mm.req = req;
                                 mm.res = res;
 
-                                if (node.wiresIn.length > 0) {
+                                if (node.wiresIn.length > 1) {
                                     var newMessage = [];
                                     for (var l in node.wiresIn) {
                                         var found = false;

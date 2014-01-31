@@ -696,8 +696,7 @@ RED.view = function() {
                     var l = d._def.label;
                     l = (typeof l === "function" ? l.call(d) : l)||"";
                     d.w = Math.max(node_width,calculateTextWidth(l)+(d._def.inputs>0?7:0) );
-                    d.h = Math.max(node_height,Math.max((d.outputs||0), (d.inputs||0)) * 15);
-
+                    d.h = Math.max(node_height,Math.max((d.outputs||0), (d._def.inputs||0)) * 15);
 
                     if (d._def.badge) {
                         var badge = node.append("svg:g").attr("class","node_badge_group");
