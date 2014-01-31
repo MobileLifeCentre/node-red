@@ -33,6 +33,7 @@ RED.nodes = function() {
     }
 
     function getType(type) {
+
         return node_defs[type];
     }
 
@@ -327,9 +328,14 @@ RED.nodes = function() {
                                 inputs: n.inputs||n.wiresIn.length
                             }
                         }
+                        if (!node._def.outputs) {
+                            node._def.outputs = n.wires.length;
+                            node._def.inputs = n.wiresIn.length;
+                        }
+
                         node.outputs = n.outputs||node._def.outputs;
                         node.inputs = n.inputs||node._def.inputs;
-
+                      
                         for (var d in node._def.defaults) {
                             node[d] = n[d];
                             if (node._def.defaults[d].type) {

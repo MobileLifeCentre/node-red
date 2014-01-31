@@ -1,4 +1,26 @@
 var SpacebrewNode = (function(Spacebrew) {
+
+	RED.nodes.registerType("spacebrew", {
+        category: 'devices',
+        defaults: {
+            name: {
+            	value: "spacebrew"
+            },
+            server: {
+                type:"rflea-listener"
+            }
+        },
+        color:"rgb(215, 215, 160)",
+        icon: "white-globe.png",
+        name: "spacebrew",
+        label: function() {
+            return this.name;
+        },
+        labelStyle: function() {
+            return this.name?"node_label_italic":"";
+        }
+    });
+
 	Spacebrew.onAddDevice = onAddDevice;
 
 	function onAddDevice(device) {
