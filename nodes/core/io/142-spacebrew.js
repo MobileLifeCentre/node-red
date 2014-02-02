@@ -180,7 +180,7 @@ function SpacebrewNode(n) {
     node.on("input", function(msg) {
         var subscribers = sb.client_config.publish.messages;
         var message;
-        console.log("received", msg);
+        
         for (var i in subscribers) {
             var subscriber = subscribers[i];
             if (msg[i] != null || typeof(msg) != typeof([])) {
@@ -192,7 +192,6 @@ function SpacebrewNode(n) {
                 if (message.payload) {
                     message = message.payload;
                 }
-                console.log(">>> enviant a spacebrew", subscriber.name, message);
                 sb.send(subscriber.name, subscriber.type, message);
             }
             

@@ -159,7 +159,6 @@ Node.prototype.close = function() {
 
 
 Node.prototype.send = function(msg) {
-    console.log("starting to send", msg);
     // instanceof doesn't work for some reason here
     if (msg == null) {
         msg = [];
@@ -223,7 +222,6 @@ Node.prototype.send = function(msg) {
                                     }
                                     m = newMessage;
                                 }
-                                console.log("sending to", node, m);
                                 node.receive(m);
                             }
                         }
