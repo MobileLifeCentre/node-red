@@ -366,18 +366,31 @@ RED.nodes = function() {
             for (var i in new_nodes) {
                 var n = new_nodes[i];
                 for (var w1 in n.wires) {
-                    var wires = (n.wires[w1] instanceof Array)?n.wires[w1]:[n.wires[w1]];
-
+                    var wires = (n.wires[w1] instanceof Array)? n.wires[w1]: [n.wires[w1]];
+                    // We find the sourcePort
                     for (var w2 in wires) {
                         if (wires[w2] in node_map) {
-                            var link = {
-                                source:n,
-                                sourcePort: w1,
-                                target: node_map[wires[w2]],
-                                targetPort: w2
-                            };
-                            addLink(link);
-                            new_links.push(link);
+                            // We find the targetPort
+                            var targetNode = node_map[wires[w2]];
+                            for (var w3 in targetNode.wiresIn) {
+                                var wiresInPort = targetNode.wiresIn[w3];
+
+                                for (var w4 in wiresInPort) {
+                                    var wire = wiresInPort[w4];
+                                    if (wire.id == n.id && wire.source == w1) {
+                                        var link = {
+                                            source:n,
+                                            sourcePort: w1,
+                                            target: node_map[wires[w2]],
+                                            targetPort: w3
+                                        };
+                                        addLink(link);
+                                        new_links.push(link);
+                                        break;
+                                    }
+                                }
+                            }
+                            
                         }
                     }
                 }
