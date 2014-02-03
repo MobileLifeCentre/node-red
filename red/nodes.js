@@ -165,88 +165,97 @@ Node.prototype.send = function(msg) {
     } else if (!util.isArray(msg)) {
         msg = [msg];
     }
+
+
     for (var i in this.wires) {
         var wires = this.wires[i];
         if (i < msg.length) {
             if (msg[i] != null) {
+                var sentRealtimeFeedback = false;
                 var msgs = msg[i];
                 if (!util.isArray(msg[i])) {
                     msgs = [msg[i]];
                 }
-                //if (wires.length == 1) {
-                //    // Single recipient, don't need to clone the message
-                //    var node = registry.get(wires[0]);
-                //    if (node) {
-                //        for (var k in msgs) {
-                //            var mm = msgs[k];
-                //            node.receive(mm);
-                //        }
-                //    }
-                //} else {
-                    // Multiple recipients, must send message copies
-                    for (var j in wires) {
-                        var node = registry.get(wires[j]);
-                        if (node) {
-                            for (var k in msgs) {
-                                var mm = msgs[k];
-                                // Temporary fix for #97
-                                // TODO: remove this http-node-specific fix somehow
-                                var req = mm.req;
-                                var res = mm.res;
-                                delete mm.req;
-                                delete mm.res;
-                                var m = clone(mm);
-                                m.req = req;
-                                m.res = res;
-                                mm.req = req;
-                                mm.res = res;
-                                var l = 0;
 
-                                if (node.wiresIn.length > 1) {
-                                    var newMessage = [];
-                                    for (l in node.wiresIn) {
-                                        var found = false;
-                                        for (var n in node.wiresIn[l]) {
-                                            var wireIn = node.wiresIn[l][n];
+                // Multiple recipients, must send message copies
+                for (var j in wires) {
+                    var node = registry.get(wires[j]);
+                    if (node) {
+                        for (var k in msgs) {
+                            var mm = msgs[k];
+                            // Temporary fix for #97
+                            // TODO: remove this http-node-specific fix somehow
+                            var req = mm.req;
+                            var res = mm.res;
+                            delete mm.req;
+                            delete mm.res;
+                            var m = clone(mm);
+                            m.req = req;
+                            m.res = res;
+                            mm.req = req;
+                            mm.res = res;
+                            var l = 0;
 
-                                            if (wireIn.id == this.id && parseInt(wireIn.source) == i) {
-                                                found = true;
-                                                break;
-                                            }
-                                        }
+                            if (node.wiresIn.length > 1) {
+                                var newMessage = [];
+                                for (l in node.wiresIn) {
+                                    var found = false;
+                                    for (var n in node.wiresIn[l]) {
+                                        var wireIn = node.wiresIn[l][n];
 
-                                        if (found) {
-                                            realtime.send(JSON.stringify({
-                                                "message": {
-                                                    "source": {
-                                                        "node": this,
-                                                        "port": parseInt(i)
-                                                    },
-                                                    "target": {
-                                                        "node": node,
-                                                        "port": parseInt(l)
-                                                    },
-                                                    "message": m
-                                                }
-                                            }));
-                                            newMessage.push(m);
-                                        } else {
-                                            newMessage.push(null);
+                                        if (wireIn.id == this.id && parseInt(wireIn.source) == i) {
+                                            found = true;
+                                            break;
                                         }
                                     }
-                                    m = newMessage;
-                                } else {
-                                    
+
+                                    if (found) {
+                                        sentRealtimeFeedback = true;
+                                        realtime.send(JSON.stringify({
+                                            "message": {
+                                                "source": {
+                                                    "node": this,
+                                                    "port": parseInt(i)
+                                                },
+                                                "target": {
+                                                    "node": node,
+                                                    "port": parseInt(l)
+                                                },
+                                                "message": m
+                                            }
+                                        }));
+                                        newMessage.push(m);
+                                    } else {
+                                        newMessage.push(null);
+                                    }
                                 }
-                                
-                                node.receive(m);
+                                m = newMessage;
+                            } else {
+
                             }
+                            
+                            node.receive(m);
                         }
                     }
-                //}
+                }
+
+
+                if (!sentRealtimeFeedback) {
+                    realtime.send(JSON.stringify({
+                        "message": {
+                            "source": {
+                                "node": this,
+                                "port": parseInt(i)
+                            }
+                        }
+                    }));
+                }
             }
         }
     }
+
+
+
 }
 module.exports.Node = Node;
 

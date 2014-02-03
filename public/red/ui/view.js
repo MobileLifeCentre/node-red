@@ -141,15 +141,25 @@ RED.view = function() {
     }
 
     function onMessage(message) {
-        var sourcePort = d3.selectAll("#" + cleanId(message.source.node.id + " rect.port_output"))[0][message.source.port];
-        var targetPort = d3.selectAll("#" + cleanId(message.target.node.id + " rect.port_input"))[0][message.target.port];
+        if (message.source) {
+            var sourcePort = d3.selectAll("#" + cleanId(message.source.node.id + " rect.port_output"))[0][message.source.port];
+            sourcePort = d3.select(sourcePort).classed("port_hovered", true);
+        
+            setTimeout(function() { 
+                sourcePort.classed("port_hovered", false);
+            }, 300);
+        }
 
-        sourcePort = d3.select(sourcePort).classed("port_hovered", true);
-        targetPort = d3.select(targetPort).classed("port_hovered", true);
-        setTimeout(function() { 
-            sourcePort.classed("port_hovered", false);
-            targetPort.classed("port_hovered", false);
-        }, 300);
+        if (message.target) {
+            var targetPort = d3.selectAll("#" + cleanId(message.target.node.id + " rect.port_input"))[0][message.target.port];
+            targetPort = d3.select(targetPort).classed("port_hovered", true);
+        
+            setTimeout(function() { 
+                targetPort.classed("port_hovered", false);
+            }, 300);
+        }
+        
+        
     }
 
     //d3.select(window).on("keydown", keydown);
