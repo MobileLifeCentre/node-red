@@ -1,6 +1,6 @@
 window.Spacebrew = (function () {
 	var name = gup('name') || window.location.href; 
-	var server = gup('server') || 'localhost';
+	var server = gup('server') || window.location.hostname;
 	var port = gup('port') || '9000';
 	var debug = gup('debug') || false;
 	var ws;

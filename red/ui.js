@@ -20,17 +20,16 @@ var fs = require("fs");
 var app = express();
 var events = require("./events");
 var path = require("path");
-
 var icon_paths = [path.resolve(__dirname + '/../public/icons')];
+
 
 events.on("node-icon-dir",function(dir) {
         icon_paths.push(path.resolve(dir));
 });
 
-
 // TODO: nothing here uses settings... so does this need to be a function?
 function setupUI(settings) {
-    
+
     // Need to ensure the url ends with a '/' so the static serving works
     // with relative paths
     app.get("/",function(req,res) {

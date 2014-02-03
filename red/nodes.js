@@ -19,8 +19,8 @@ var fs = require("fs");
 var path = require("path");
 var clone = require("clone");
 var events = require("./events");
+var realtime = require("./realtime");
 var storage = null;
-
 
 util.dumpError = function(err) {
   if (typeof err === 'object') {
@@ -200,10 +200,11 @@ Node.prototype.send = function(msg) {
                                 m.res = res;
                                 mm.req = req;
                                 mm.res = res;
+                                var l = 0;
 
                                 if (node.wiresIn.length > 1) {
                                     var newMessage = [];
-                                    for (var l in node.wiresIn) {
+                                    for (l in node.wiresIn) {
                                         var found = false;
                                         for (var n in node.wiresIn[l]) {
                                             var wireIn = node.wiresIn[l][n];
@@ -215,13 +216,29 @@ Node.prototype.send = function(msg) {
                                         }
 
                                         if (found) {
+                                            realtime.send(JSON.stringify({
+                                                "message": {
+                                                    "source": {
+                                                        "node": this,
+                                                        "port": parseInt(i)
+                                                    },
+                                                    "target": {
+                                                        "node": node,
+                                                        "port": parseInt(l)
+                                                    },
+                                                    "message": m
+                                                }
+                                            }));
                                             newMessage.push(m);
                                         } else {
                                             newMessage.push(null);
                                         }
                                     }
                                     m = newMessage;
+                                } else {
+                                    
                                 }
+                                
                                 node.receive(m);
                             }
                         }

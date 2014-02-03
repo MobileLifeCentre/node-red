@@ -135,6 +135,23 @@ RED.view = function() {
         $( "#node-dialog-delete-workspace" ).dialog('open');
     }
 
+    setRealtime();
+    function setRealtime() {
+        RED.realtime.setOnMessageCallback(onMessage);
+    }
+
+    function onMessage(message) {
+        var sourcePort = d3.selectAll("#" + cleanId(message.source.node.id + " rect.port_output"))[0][message.source.port];
+        var targetPort = d3.selectAll("#" + cleanId(message.target.node.id + " rect.port_input"))[0][message.target.port];
+
+        sourcePort = d3.select(sourcePort).classed("port_hovered", true);
+        targetPort = d3.select(targetPort).classed("port_hovered", true);
+        setTimeout(function() { 
+            sourcePort.classed("port_hovered", false);
+            targetPort.classed("port_hovered", false);
+        }, 300);
+    }
+
     //d3.select(window).on("keydown", keydown);
 
     function canvasMouseDown() {
@@ -676,6 +693,10 @@ RED.view = function() {
         d3.event.preventDefault();
     }
 
+    function cleanId(id) {
+        return "node" + id.replace(".", "");
+    }
+
     function redraw() {
         vis.attr("transform","scale("+scaleFactor+")");
         outer.attr("width", space_width*scaleFactor).attr("height", space_height*scaleFactor);
@@ -686,116 +707,122 @@ RED.view = function() {
         if (mouse_mode != RED.state.JOINING) {
             // Don't bother redrawing nodes if we're drawing links
 
-            var node = vis.selectAll(".nodegroup").data(RED.nodes.nodes.filter(function(d) { return d.z == activeWorkspace }),function(d){return d.id});
+            var node = vis.selectAll(".nodegroup")
+                .data(RED.nodes.nodes.filter(function(d) { 
+                    return d.z == activeWorkspace 
+                }), function(d){ return d.id });
+
             node.exit().remove();
 
-            var nodeEnter = node.enter().insert("svg:g").attr("class", "node nodegroup");
+            var nodeEnter = node.enter()
+                .insert("svg:g").attr("class", "node nodegroup").attr("id", function(d) {return cleanId(d.id); });
+            
             nodeEnter.each(function(d,i) {
-                    var node = d3.select(this);
+                var node = d3.select(this);
 
-                    var l = d._def.label;
-                    l = (typeof l === "function" ? l.call(d) : l)||"";
-                    d.w = Math.max(node_width,calculateTextWidth(l)+(d._def.inputs>0?7:0) );
-                    d.h = Math.max(node_height,Math.max((d.outputs||0), (d._def.inputs||0)) * 15);
+                var l = d._def.label;
+                l = (typeof l === "function" ? l.call(d) : l)||"";
+                d.w = Math.max(node_width,calculateTextWidth(l)+(d._def.inputs>0?7:0) );
+                d.h = Math.max(node_height,Math.max((d.outputs||0), (d._def.inputs||0)) * 15);
 
-                    if (d._def.badge) {
-                        var badge = node.append("svg:g").attr("class","node_badge_group");
-                        var badgeRect = badge.append("rect").attr("class","node_badge").attr("rx",5).attr("ry",5).attr("width",40).attr("height",15);
-                        badge.append("svg:text").attr("class","node_badge_label").attr("x",35).attr("y",11).attr('text-anchor','end').text(d._def.badge());
-                        if (d._def.onbadgeclick) {
-                            badgeRect.attr("cursor","pointer")
-                                .on("click",function(d) { d._def.onbadgeclick.call(d);d3.event.preventDefault();});
-                        }
+                if (d._def.badge) {
+                    var badge = node.append("svg:g").attr("class","node_badge_group");
+                    var badgeRect = badge.append("rect").attr("class","node_badge").attr("rx",5).attr("ry",5).attr("width",40).attr("height",15);
+                    badge.append("svg:text").attr("class","node_badge_label").attr("x",35).attr("y",11).attr('text-anchor','end').text(d._def.badge());
+                    if (d._def.onbadgeclick) {
+                        badgeRect.attr("cursor","pointer")
+                            .on("click",function(d) { d._def.onbadgeclick.call(d);d3.event.preventDefault();});
                     }
+                }
 
-                    if (d._def.button) {
-                        var nodeButtonGroup = node.append('svg:g')
-                            .attr("transform",function(d) { return "translate("+((d._def.align == "right") ? 94 : -25)+",2)"; })
-                            .attr("class",function(d) { return "node_button "+((d._def.align == "right") ? "node_right_button" : "node_left_button"); });
-                        nodeButtonGroup.append('rect')
-                            .attr("rx",8)
-                            .attr("ry",8)
-                            .attr("width",32)
-                            .attr("height",node_height-4)
-                            .attr("fill","#eee");//function(d) { return d._def.color;})
-                        nodeButtonGroup.append('rect')
-                            .attr("x",function(d) { return d._def.align == "right"? 10:5})
-                            .attr("y",4)
-                            .attr("rx",5)
-                            .attr("ry",5)
-                            .attr("width",16)
-                            .attr("height",node_height-12)
-                            .attr("fill",function(d) { return d._def.color;})
-                            .attr("cursor","pointer")
-                            .on("mousedown",function(d) {if (!lasso) { d3.select(this).attr("fill-opacity",0.2);d3.event.preventDefault(); d3.event.stopPropagation();}})
-                            .on("mouseup",function(d) {if (!lasso) { d3.select(this).attr("fill-opacity",0.4);d3.event.preventDefault();d3.event.stopPropagation();}})
-                            .on("mouseover",function(d) {if (!lasso) { d3.select(this).attr("fill-opacity",0.4);}})
-                            .on("mouseout",function(d) {if (!lasso) {
-                                var op = 1;
-                                if (d._def.button.toggle) {
-                                    op = d[d._def.button.toggle]?1:0.2;
-                                }
-                                d3.select(this).attr("fill-opacity",op);
-                            }})
-                            .on("click",nodeButtonClicked)
-                            .on("touchstart",nodeButtonClicked)
-                    }
-
-                    var mainRect = node.append("rect")
-                        .attr("class", "node")
-                        .classed("node_unknown",function(d) { return d.type == "unknown"; }) 
-                        .attr("rx", 6)
-                        .attr("ry", 6)
+                if (d._def.button) {
+                    var nodeButtonGroup = node.append('svg:g')
+                        .attr("transform",function(d) { return "translate("+((d._def.align == "right") ? 94 : -25)+",2)"; })
+                        .attr("class",function(d) { return "node_button "+((d._def.align == "right") ? "node_right_button" : "node_left_button"); });
+                    nodeButtonGroup.append('rect')
+                        .attr("rx",8)
+                        .attr("ry",8)
+                        .attr("width",32)
+                        .attr("height",node_height-4)
+                        .attr("fill","#eee");//function(d) { return d._def.color;})
+                    nodeButtonGroup.append('rect')
+                        .attr("x",function(d) { return d._def.align == "right"? 10:5})
+                        .attr("y",4)
+                        .attr("rx",5)
+                        .attr("ry",5)
+                        .attr("width",16)
+                        .attr("height",node_height-12)
                         .attr("fill",function(d) { return d._def.color;})
-                        .on("mousedown",nodeMouseDown)
-                        .on("touchstart",nodeMouseDown)
-                        .on("dblclick",function(d) {RED.editor.edit(d);})
-                        .on("mouseover",function(d) {
-                                if (mouse_mode == 0) {
-                                    var node = d3.select(this);
-                                    node.classed("node_hovered",true);
-                                }
-                        })
-                        .on("mouseout",function(d) {
+                        .attr("cursor","pointer")
+                        .on("mousedown",function(d) {if (!lasso) { d3.select(this).attr("fill-opacity",0.2);d3.event.preventDefault(); d3.event.stopPropagation();}})
+                        .on("mouseup",function(d) {if (!lasso) { d3.select(this).attr("fill-opacity",0.4);d3.event.preventDefault();d3.event.stopPropagation();}})
+                        .on("mouseover",function(d) {if (!lasso) { d3.select(this).attr("fill-opacity",0.4);}})
+                        .on("mouseout",function(d) {if (!lasso) {
+                            var op = 1;
+                            if (d._def.button.toggle) {
+                                op = d[d._def.button.toggle]?1:0.2;
+                            }
+                            d3.select(this).attr("fill-opacity",op);
+                        }})
+                        .on("click",nodeButtonClicked)
+                        .on("touchstart",nodeButtonClicked)
+                }
+
+                var mainRect = node.append("rect")
+                    .attr("class", "node")
+                    .classed("node_unknown",function(d) { return d.type == "unknown"; }) 
+                    .attr("rx", 6)
+                    .attr("ry", 6)
+                    .attr("fill",function(d) { return d._def.color;})
+                    .on("mousedown",nodeMouseDown)
+                    .on("touchstart",nodeMouseDown)
+                    .on("dblclick",function(d) {RED.editor.edit(d);})
+                    .on("mouseover",function(d) {
+                            if (mouse_mode == 0) {
                                 var node = d3.select(this);
-                                node.classed("node_hovered",false);
-                        });
+                                node.classed("node_hovered",true);
+                            }
+                    })
+                    .on("mouseout",function(d) {
+                            var node = d3.select(this);
+                            node.classed("node_hovered",false);
+                    });
 
-                   //node.append("rect").attr("class", "node-gradient-top").attr("rx", 6).attr("ry", 6).attr("height",30).attr("stroke","none").attr("fill","url(#gradient-top)").style("pointer-events","none");
-                   //node.append("rect").attr("class", "node-gradient-bottom").attr("rx", 6).attr("ry", 6).attr("height",30).attr("stroke","none").attr("fill","url(#gradient-bottom)").style("pointer-events","none");
+               //node.append("rect").attr("class", "node-gradient-top").attr("rx", 6).attr("ry", 6).attr("height",30).attr("stroke","none").attr("fill","url(#gradient-top)").style("pointer-events","none");
+               //node.append("rect").attr("class", "node-gradient-bottom").attr("rx", 6).attr("ry", 6).attr("height",30).attr("stroke","none").attr("fill","url(#gradient-bottom)").style("pointer-events","none");
 
-                    mainRect.on("mouseup",nodeMouseUp);
-                    mainRect.on("touchend",function(){ clearTimeout(pressTimer); nodeMouseUp; });
-                    //mainRect.on("touchend",nodeMouseUp);
+                mainRect.on("mouseup",nodeMouseUp);
+                mainRect.on("touchend",function(){ clearTimeout(pressTimer); nodeMouseUp; });
+                //mainRect.on("touchend",nodeMouseUp);
 
-                    if (d._def.icon) {
-                        var icon = node.append("image")
-                            .attr("xlink:href","icons/"+d._def.icon)
-                            .attr("class","node_icon")
-                            .attr("x",0).attr("y",function(d){return (d.h-Math.min(50,d.h))/2;})
-                            .attr("width","15")
-                            .attr("height", function(d){return Math.min(50,d.h);});
+                if (d._def.icon) {
+                    var icon = node.append("image")
+                        .attr("xlink:href","icons/"+d._def.icon)
+                        .attr("class","node_icon")
+                        .attr("x",0).attr("y",function(d){return (d.h-Math.min(50,d.h))/2;})
+                        .attr("width","15")
+                        .attr("height", function(d){return Math.min(50,d.h);});
 
-                        if (d._def.align) {
-                            icon.attr('class','node_icon node_icon_'+d._def.align);
-                        }
-                        if (d._def.inputs > 0) {
-                            icon.attr("x",8);
-                        }
-                        icon.style("pointer-events","none");
-                    }
-                    var text = node.append('svg:text').attr('class','node_label').attr('x', 23).attr('dy', '.35em').attr('text-anchor','start');
                     if (d._def.align) {
-                        text.attr('class','node_label node_label_'+d._def.align);
-                        text.attr('text-anchor','end');
+                        icon.attr('class','node_icon node_icon_'+d._def.align);
                     }
+                    if (d._def.inputs > 0) {
+                        icon.attr("x",8);
+                    }
+                    icon.style("pointer-events","none");
+                }
+                var text = node.append('svg:text').attr('class','node_label').attr('x', 23).attr('dy', '.35em').attr('text-anchor','start');
+                if (d._def.align) {
+                    text.attr('class','node_label node_label_'+d._def.align);
+                    text.attr('text-anchor','end');
+                }
 
-                    //node.append("path").attr("class","node_error").attr("d","M 3,-3 l 10,0 l -5,-8 z");
-                    node.append("image").attr("class","node_error hidden").attr("xlink:href","icons/node-error.png").attr("x",0).attr("y",-6).attr("width",10).attr("height",9);
-                    node.append("image").attr("class","node_changed hidden").attr("xlink:href","icons/node-changed.png").attr("x",12).attr("y",-6).attr("width",10).attr("height",10);
+                //node.append("path").attr("class","node_error").attr("d","M 3,-3 l 10,0 l -5,-8 z");
+                node.append("image").attr("class","node_error hidden").attr("xlink:href","icons/node-error.png").attr("x",0).attr("y",-6).attr("width",10).attr("height",9);
+                node.append("image").attr("class","node_changed hidden").attr("xlink:href","icons/node-changed.png").attr("x",12).attr("y",-6).attr("width",10).attr("height",10);
             });
 
-            node.each(function(d,i) {
+            node.each(function(d, i) {
                 if (d.dirty) {
                     //if (d.x < -50) deleteSelection();  // Delete nodes if dragged back to palette
                     if (d.resize) {
@@ -849,9 +876,8 @@ RED.view = function() {
                                 }
                             }
                             return "";
-                    })
-                        .attr('y', function(d){return (d.h/2)-1;})
-                        .attr('class',function(d){
+                    }).attr('y', function(d){return (d.h/2)-1;})
+                      .attr('class',function(d){
                             return 'node_label'+
                             (d._def.align?' node_label_'+d._def.align:'')+
                             (d._def.label?' '+(typeof d._def.labelStyle == "function" ? d._def.labelStyle.call(d):d._def.labelStyle):'') ;
@@ -873,7 +899,11 @@ RED.view = function() {
                     d.portsInput = d.portsInput || d3.range(numInputs);
                     d._portsInput = thisNode.selectAll(".port_input").data(d.portsInput);
 
-                    d._portsInput.enter().append("rect").attr("class","port port_input").attr("rx",3).attr("ry",3).attr("width",10).attr("height",10)
+                    d._portsInput.enter()
+                        .append("rect")
+                        .attr("class","port port_input")
+                        .attr("rx",3).attr("ry",3)
+                        .attr("width",10).attr("height",10)
                         .on("mousedown",function(){var node = d; return function(d,i){portMouseDown(node,1,i);}}() )
                         .on("touchstart",function(){var node = d; return function(d,i){portMouseDown(node,1,i);}}() )
                         .on("mouseup",function(){var node = d; return function(d,i){portMouseUp(node,1,i);}}() )
