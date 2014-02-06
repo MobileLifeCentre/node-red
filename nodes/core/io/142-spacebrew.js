@@ -182,9 +182,10 @@ function SpacebrewNode(n) {
         var message;
         
         for (var i in subscribers) {
-            var subscriber = subscribers[i];
-            if (msg[i] != null || typeof(msg) != typeof([])) {
-                if (msg[i]) {
+            var subscriber = subscribers[i],
+                isArray = typeof(msg) == typeof([]);
+            if (msg[i] != null || !isArray) {
+                if (isArray) {
                     message = msg[i];
                 } else {
                     message = msg;
