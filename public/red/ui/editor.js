@@ -22,15 +22,7 @@ RED.editor = function() {
     function showEditDialog(node) {
         editing_node = node;
         RED.view.state(RED.state.EDITING);
-        // VICTOR: this is to have subchilds
-        var cleanType = function(type) {
-            var firstDot = type.indexOf('.');
-            if (firstDot > -1) {
-                type = type.substr(0, firstDot);
-            }
-            return type;
-        } 
-        $("#dialog-form").html($("script[data-template-name='"+cleanType(node.type)+"']").html()); 
+        $("#dialog-form").html($("script[data-template-name='"+node.type+"']").html()); 
         if (node._def.defaults) {
             for (var d in node._def.defaults) {
                 var def = node._def.defaults[d];

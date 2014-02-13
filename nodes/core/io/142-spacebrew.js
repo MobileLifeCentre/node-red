@@ -41,25 +41,20 @@ function processConfig(message) {
     // We don't have to add the node-red nodes
     if (message.name.indexOf("red_node") == 0) return;
     
-    var type = "spacebrew."+message.name;
+    var type = "spacebrew." + message.name.replace(/ /g, "");
     _spacebrewNodes[type] = message;
 
-    console.log("registering type node", type);
     RED.nodes.registerType(type, SpacebrewNode);
 }
 
 function SpacebrewNode(n) {
     RED.nodes.createNode(this, n);
     var node = this;
-
     // Set up names
     var app_name = "red_node" + n.id,
-        sb = _redNodeSpacebrewListeners[app_name];
-
+        sb = _redNodeSpacebrewListeners[n.name];
 
     if (sb == null || sb == undefined) {
-
-        console.log("new connection");
         sb = new SpacebrewClient.Spacebrew.Client({
             reconnect: true,
             server: "localhost",
@@ -69,7 +64,7 @@ function SpacebrewNode(n) {
         if (app_name)
         sb.name(app_name);
         sb.description("red-node generated node");
-        _redNodeSpacebrewListeners[sb._name] = sb;
+        _redNodeSpacebrewListeners[n.name] = sb;
 
         var device = _spacebrewNodes[n.type];
 
@@ -95,16 +90,14 @@ function SpacebrewNode(n) {
             setTimeout(function() {
                 connectIOs(n, sb)
             }, 3000);
-            sb.onOpen = function() {
-            };
-        }
+            sb.onOpen = function() {};
+        };
 
-
-
+        sb.onClose = function() {
+        };
         // Adding the spacebrew into the clients
         sb.connect();
     }
-
 
     // Binding spacebrew -> red-node
     sb.onBooleanMessage = redirect;
@@ -180,7 +173,6 @@ function SpacebrewNode(n) {
     node.on("input", function(msg) {
         var subscribers = sb.client_config.publish.messages;
         var message;
-        
         for (var i in subscribers) {
             var subscriber = subscribers[i],
                 isArray = typeof(msg) == typeof([]);

@@ -27,7 +27,7 @@ var SpacebrewNode = (function(Spacebrew) {
 	}
 
 	function onAddDevice(device) {
-		var type = "spacebrew." + device.name;
+		var type = "spacebrew." + device.name.replace(/ /g, "");
 		if (RED.nodes.getType(type) == undefined && device.name.indexOf("red_node") != 0) {
 			//Spacebrew.comm.send({config: device});
 			

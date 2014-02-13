@@ -299,8 +299,8 @@ RED.nodes = function() {
                         }
                         return type;
                     } 
-                    n.type = cleanType(n.type);
-                    var def = getType(n.type);
+                    n.cleanType = cleanType(n.type);
+                    var def = getType(n.cleanType || n.type);
                     if (def && def.category == "config") {
                         if (!RED.nodes.node(n.id)) {
                             var configNode = {id:n.id,type:n.type,users:[]};

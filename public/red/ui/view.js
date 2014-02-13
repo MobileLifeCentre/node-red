@@ -542,14 +542,7 @@ RED.view = function() {
             }
         }
         table += "</tbody></table><br/>";
-        var cleanType = function(type) {
-            var firstDot = type.indexOf('.');
-            if (firstDot > -1) {
-                type = type.substr(0, firstDot);
-            }
-            return type;
-        } 
-        table  += '<div class="node-help">'+($("script[data-help-name|='"+cleanType(node.type)+"']").html()||"")+"</div>";
+        table  += '<div class="node-help">'+($("script[data-help-name|='"+node.type+"']").html()||"")+"</div>";
         $("#tab-info").html(table);
     }
 
