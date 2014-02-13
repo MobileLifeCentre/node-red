@@ -211,19 +211,7 @@ Node.prototype.send = function(msg) {
 
                                     if (found) {
                                         sentRealtimeFeedback = true;
-                                        realtime.send(JSON.stringify({
-                                            "message": {
-                                                "source": {
-                                                    "node": this,
-                                                    "port": parseInt(i)
-                                                },
-                                                "target": {
-                                                    "node": node,
-                                                    "port": parseInt(l)
-                                                },
-                                                "message": m
-                                            }
-                                        }));
+                                        sendRealtime(this, parseInt(i), node, parseInt(l), m);
                                         newMessage.push(m);
                                     } else {
                                         newMessage.push(null);
@@ -231,7 +219,7 @@ Node.prototype.send = function(msg) {
                                 }
                                 m = newMessage;
                             } else {
-
+                                sendRealtime(this, parseInt(i), node, 0, m);
                             }
                             
                             node.receive(m);
@@ -257,6 +245,22 @@ Node.prototype.send = function(msg) {
 
 
 }
+function sendRealtime(sourceNode, sourcePort, targetNode, targetPort, msg) {
+    realtime.send(JSON.stringify({
+        "message": {
+            "source": {
+                "node": sourceNode,
+                "port": sourcePort
+            },
+            "target": {
+                "node": targetNode,
+                "port": targetPort
+            },
+            "message": msg
+        }
+    }));
+}
+
 module.exports.Node = Node;
 
 Node.prototype.receive = function(msg) {
