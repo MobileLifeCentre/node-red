@@ -22,7 +22,7 @@ var RED = require(process.env.NODE_RED_HOME+"/red/red"),
     spacebrew = require("./lib/spacebrew"),
     SpacebrewClient = require("./lib/spacebrewClient"),
     _spacebrewNodes = [],
-    _redNodeSpacebrewListeners = [];
+    _pendingSpacebrewNodes = [];
 
 // ====================
 // rfleabrew
@@ -44,30 +44,43 @@ function processConfig(message) {
     var type = "spacebrew." + message.name.replace(/ /g, "");
     _spacebrewNodes[type] = message;
 
+    var pendingNodes = _pendingSpacebrewNodes[type];
+    _pendingSpacebrewNodes[type] = undefined;
+    if (pendingNodes) {
+        for (var i in pendingNodes) {
+            pendingNodes[i](message);
+        }
+    }
+
     RED.nodes.registerType(type, SpacebrewNode);
 }
 
 function SpacebrewNode(n) {
     RED.nodes.createNode(this, n);
-    var node = this;
-    // Set up names
-    var app_name = "red_node" + n.id,
-        sb = _redNodeSpacebrewListeners[n.name];
 
-    if (sb == null || sb == undefined) {
+    // Set up names
+    var node = this;
+    var app_name = "red_node" + n.id,
         sb = new SpacebrewClient.Spacebrew.Client({
             reconnect: true,
             server: "localhost",
             port: 9000
         });
         
-        if (app_name)
-        sb.name(app_name);
-        sb.description("red-node generated node");
-        _redNodeSpacebrewListeners[n.name] = sb;
+    if (app_name) sb.name(app_name);
+    sb.description("red-node generated node");
 
-        var device = _spacebrewNodes[n.type];
+    var device = _spacebrewNodes[n.type];
+    if (device == null) {
+        if (_pendingSpacebrewNodes[n.type] == undefined) {
+            _pendingSpacebrewNodes[n.type] = [];
+        }
+        _pendingSpacebrewNodes.push(loadSpacebrew);
+    } else {
+        loadSpacebrew(device);
+    }
 
+    function loadSpacebrew(device) {
         // Publish of the Spacebrew subscribe
         var publishers = device.publish.messages;
         for (var i in publishers) {
@@ -95,15 +108,17 @@ function SpacebrewNode(n) {
 
         sb.onClose = function() {
         };
+
+        // Binding spacebrew -> red-node
+        sb.onBooleanMessage = redirect;
+        sb.onRangeMessage = redirect;
+        sb.onCustomMessage = redirect;
+        sb.onStringMessage = redirect; 
+
         // Adding the spacebrew into the clients
         sb.connect();
     }
-
-    // Binding spacebrew -> red-node
-    sb.onBooleanMessage = redirect;
-    sb.onRangeMessage = redirect;
-    sb.onCustomMessage = redirect;
-    sb.onStringMessage = redirect;
+    
 
     function redirect(name, msg) {
 

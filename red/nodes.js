@@ -107,8 +107,17 @@ registry.addLogHandler(ConsoleLogHandler);
 var node_type_registry = (function() {
         var node_types = {};
         var node_configs = {};
+
+        var cleanType = function(type) {
+            var firstDot = type.indexOf('.');
+            if (firstDot > -1) {
+                type = type.substr(0, firstDot);
+            }
+            return type;
+        } 
         var obj = {
             register: function(type,node) {
+                type = cleanType(type);
                 util.inherits(node, Node);
                 var callerFilename = getCallerFilename(type);
                 if (callerFilename == null) {
@@ -127,6 +136,7 @@ var node_type_registry = (function() {
                 }
             },
             get: function(type) {
+                type = cleanType(type);
                 return node_types[type];
             },
             getNodeConfigs: function() {
