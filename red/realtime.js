@@ -6,7 +6,13 @@ function setupRealtime() {
     server = new ws({port: 1881});
     server.broadcast = function(data) {
         for(var i in this.clients) {
-            this.clients[i].send(data);
+            var client = this.clients[i];
+            
+            try {
+                client.send(data);
+            } catch (err) {
+                // It can happen that the client is not connected
+            }
         }
     };
 
