@@ -75,7 +75,7 @@ function SpacebrewNode(n) {
         if (_pendingSpacebrewNodes[n.type] == undefined) {
             _pendingSpacebrewNodes[n.type] = [];
         }
-        _pendingSpacebrewNodes.push(loadSpacebrew);
+        _pendingSpacebrewNodes[n.type].push(loadSpacebrew);
     } else {
         loadSpacebrew(device);
     }

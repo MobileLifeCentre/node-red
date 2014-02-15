@@ -141,7 +141,7 @@ Spacebrew.Client = function( server, name, description, options ){
         this.reconnect = options.reconnect || true;
         this.reconnect_timer = undefined;
 
-        this.send_interval = 16;
+        this.send_interval = 0;
         this.send_blocked = false;
         this.msg = {};
 
@@ -357,7 +357,7 @@ Spacebrew.Client.prototype.send = function( name, type, value ){
     }
 
    // if send block is not active then send message
-   if (!this.send_blocked) {
+   if (!this.send_blocked && this._isConnected) {
         this.socket.send(JSON.stringify(this.msg));
         this.send_blocked = true;
         this.msg = undefined;
