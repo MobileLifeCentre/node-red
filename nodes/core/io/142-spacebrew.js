@@ -84,18 +84,19 @@ function SpacebrewNode(n) {
         if (app_name) sb.name(app_name);
         sb.description("red-node generated node");
 
-        var device = _spacebrewNodes[n.type];
-        if (device == null) {
-            if (_pendingSpacebrewNodes[n.type] == undefined) {
-                _pendingSpacebrewNodes[n.type] = [];
-            }
-            _pendingSpacebrewNodes[n.type].push(loadSpacebrew);
-        } else {
-            loadSpacebrew(device);
-        }
-    }
 
+    }
+    
     _spacebrews[node.type] = sb;
+    var device = _spacebrewNodes[n.type];
+    if (device == null) {
+        if (_pendingSpacebrewNodes[n.type] == undefined) {
+            _pendingSpacebrewNodes[n.type] = [];
+        }
+        _pendingSpacebrewNodes[n.type].push(loadSpacebrew);
+    } else {
+        loadSpacebrew(device);
+    }
 
     function loadSpacebrew(device) {
         // Publish of the Spacebrew subscribe
@@ -106,7 +107,7 @@ function SpacebrewNode(n) {
             var publisher = publishers[i];
             sb.addSubscribe(publisher.name, publisher.type);
         }
-        
+
         var extra = fromDevice,
             fromDevice = toDevice,
             toDevice = extra;
