@@ -190,11 +190,11 @@ var localfilesystem = {
     saveFlows: function(flows) {
         var defer = when.defer();
         fs.writeFile(flowsFullPath, JSON.stringify(flows), function(err) {
-                if(err) {
-                    defer.reject(err);
-                } else {
-                    defer.resolve();
-                }
+            if(err) {
+                defer.reject(err);
+            } else {
+                defer.resolve();
+            }
         });
         return defer.promise;
     },

@@ -152,13 +152,14 @@ var node_type_registry = (function() {
 
 function Node(n) {
     this.id = n.id;
-    registry.add(this);
+    
     this.type = n.type;
     if (n.name) {
         this.name = n.name;
     }
     this.wires = n.wires||[];
     this.wiresIn = n.wiresIn||[];
+    registry.add(this);
 }
 util.inherits(Node,EventEmitter);
 

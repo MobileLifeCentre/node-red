@@ -22,12 +22,15 @@ var RED = require(process.env.NODE_RED_HOME+"/red/red"),
     spacebrew = require("./lib/spacebrew"),
     SpacebrewClient = require("./lib/spacebrewClient"),
     _spacebrewNodes = [],
-    _pendingSpacebrewNodes = [];
+    _pendingSpacebrewNodes = [],
+    _lastNodes = [];
 
 // ====================
 // rfleabrew
 // ====================
 function SpacebrewNodeBase(n) {
+    _spacebrewNodes = [];
+    _pendingSpacebrewNodes = [];
     RED.nodes.createNode(this,n);
 }
 
@@ -35,7 +38,10 @@ RED.nodes.registerType("spacebrew", SpacebrewNodeBase);
 
 
 
-spacebrew.onAddDevice = processConfig;
+spacebrew.onConfigMsg = processConfig;
+//spacebrew.onRouteMsg = processRoute;
+//spacebrew.onRemoveMsg = processRemove;
+//spacebrew.onMessage = processMessage;
 
 function processConfig(message) {
     // We don't have to add the node-red nodes
@@ -55,6 +61,10 @@ function processConfig(message) {
     RED.nodes.registerType(type, SpacebrewNode);
 }
 
+function processRoute(message) {
+
+}
+
 function SpacebrewNode(n) {
     RED.nodes.createNode(this, n);
 
@@ -66,6 +76,8 @@ function SpacebrewNode(n) {
             server: "localhost",
             port: 9000
         });
+
+    _lastNodes[node.type] = node;
         
     if (app_name) sb.name(app_name);
     sb.description("red-node generated node");
@@ -101,6 +113,7 @@ function SpacebrewNode(n) {
 
         sb.onOpen = function() {
             setTimeout(function() {
+                console.log("connecting ios");
                 connectIOs(n, sb)
             }, 3000);
             sb.onOpen = function() {};
@@ -121,7 +134,6 @@ function SpacebrewNode(n) {
     
 
     function redirect(name, msg) {
-
         // node-red uses a weird system in which you can send an array
         // containing all the wires that are going to be destiny
         var msgs = [];
@@ -133,7 +145,7 @@ function SpacebrewNode(n) {
                 msgs.push(null);
             }
         }
-        node.send(msgs);
+        _lastNodes[node.type].send(msgs);
     }
 
     function connectIOs(n, sb) {

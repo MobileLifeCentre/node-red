@@ -9,7 +9,6 @@ module.exports = (function () {
 	var reconnect_timer = undefined;
 	var Spacebrew;
 	var setupWebsocket = function() {
-		console.log("connecting");
 		ws = new WebSocket("ws://"+server+":" + Number(port));
 
 		ws.onopen = function() {
@@ -78,17 +77,19 @@ module.exports = (function () {
 
 	// Pampallugues
 	var handleMessageMsg = function(msg) {
-		//Spacebrew.handleMsg(msg);
+		Spacebrew.onMessage(msg);
 	};
 
 	var handleConfigMsg = function(msg) {
-		Spacebrew.onAddDevice(msg);
+		Spacebrew.onConfigMsg(msg);
 	};
 
 	var handleRemoveMsg = function(msg) {
+		Spacebrew.onRemoveMsg(msg);
 	};
 
 	var handleRouteMsg = function(msg) {
+		Spacebrew.onRouteMsg(msg);
 	};
 
 	var connectIOs = function (action, ioFrom, ioTo) {
@@ -123,10 +124,16 @@ module.exports = (function () {
 			}
 			ws.send(message);
 		},
-		onAddDevice: function(handler) {
+		onConfigMsg: function(handler) {
 			
 		},
-		onRemoveDevice: function(handler) {
+		onRemoveMsg: function(handler) {
+
+		},
+		onRouteMsg: function(message) {
+
+		},
+		onMessage: function(message) {
 
 		},
 		connectIOs: connectIOs
