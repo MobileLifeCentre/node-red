@@ -72,27 +72,30 @@ function SpacebrewNode(n) {
     // Set up names
     var node = this;
     var app_name = "red_node" + n.id,
+        sb = _spacebrews[node.type];
+
+    _lastNodes[node.type] = node;
+    if (sb == null || sb == undefined) {
         sb = new SpacebrewClient.Spacebrew.Client({
             reconnect: true,
             server: "localhost",
             port: 9000
         });
+        if (app_name) sb.name(app_name);
+        sb.description("red-node generated node");
 
-    _lastNodes[node.type] = node;
-    _spacebrews[node.type] = sb;
-        
-    if (app_name) sb.name(app_name);
-    sb.description("red-node generated node");
-
-    var device = _spacebrewNodes[n.type];
-    if (device == null) {
-        if (_pendingSpacebrewNodes[n.type] == undefined) {
-            _pendingSpacebrewNodes[n.type] = [];
+        var device = _spacebrewNodes[n.type];
+        if (device == null) {
+            if (_pendingSpacebrewNodes[n.type] == undefined) {
+                _pendingSpacebrewNodes[n.type] = [];
+            }
+            _pendingSpacebrewNodes[n.type].push(loadSpacebrew);
+        } else {
+            loadSpacebrew(device);
         }
-        _pendingSpacebrewNodes[n.type].push(loadSpacebrew);
-    } else {
-        loadSpacebrew(device);
     }
+
+    _spacebrews[node.type] = sb;
 
     function loadSpacebrew(device) {
         // Publish of the Spacebrew subscribe
@@ -103,8 +106,7 @@ function SpacebrewNode(n) {
             var publisher = publishers[i];
             sb.addSubscribe(publisher.name, publisher.type);
         }
-
-
+        
         var extra = fromDevice,
             fromDevice = toDevice,
             toDevice = extra;
