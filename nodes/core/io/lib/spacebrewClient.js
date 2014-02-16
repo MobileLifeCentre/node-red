@@ -331,9 +331,9 @@ Spacebrew.Client.prototype.addSubscribe = function( name, type ){
  * @private
  */
 Spacebrew.Client.prototype.updatePubSub = function(){
-        if (this._isConnected) {
-                this.socket.send(JSON.stringify({"config": this.client_config}));
-        }
+    if (this._isConnected) {
+            this.socket.send(JSON.stringify({"config": this.client_config}));
+    }
 }
 
 /**

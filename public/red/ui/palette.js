@@ -15,7 +15,7 @@
  **/
 RED.palette = function() {
     
-    function addNodeType(nt,def) {
+    function addNodeType(nt, def) {
         if (def.category != 'config') {
             var nodeDOM = getNodeElement(nt);
 
@@ -88,7 +88,10 @@ RED.palette = function() {
     }
 
     function removeNodeType(nt) {
-        $(getNodeElement(nt)).toggleClass("disconnected", true);
+        var $node = $(getNodeElement(nt));
+        $node.toggleClass("disconnected", true);
+        
+        $node.remove();
     }
     
     $(".palette-header").click(

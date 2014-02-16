@@ -112,7 +112,6 @@ module.exports = (function () {
 	                }
 	            }
 	        };
-	        console.log("trying to connect", ioFrom.clientName , " to ", ioTo.clientName);
 	        ws.send(JSON.stringify(msg));       
 	};
 

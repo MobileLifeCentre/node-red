@@ -21,9 +21,13 @@ var RED = require(process.env.NODE_RED_HOME+"/red/red"),
     rfleabrew = {},
     spacebrew = require("./lib/spacebrew"),
     SpacebrewClient = require("./lib/spacebrewClient"),
+    // Definition of spacebrew node
     _spacebrewNodes = [],
+    // Nodes that don't have a Spacebrew definition
     _pendingSpacebrewNodes = [],
+    // All the nodes of each type
     _lastNodes = [],
+    // Connections to spacebrew
     _spacebrews = [];
 
 // ====================
@@ -52,11 +56,9 @@ function processConfig(message) {
     _spacebrewNodes[type] = message;
 
     var pendingNodes = _pendingSpacebrewNodes[type];
-    _pendingSpacebrewNodes[type] = undefined;
     if (pendingNodes) {
-        for (var i in pendingNodes) {
-            pendingNodes[i](message);
-        }
+        _pendingSpacebrewNodes[type] = undefined;
+        pendingNodes(message);
     }
 
     RED.nodes.registerType(type, SpacebrewNode);
@@ -74,34 +76,33 @@ function SpacebrewNode(n) {
     var app_name = "red_node" + n.id,
         sb = _spacebrews[node.type];
 
-    _lastNodes[node.type] = node;
-    if (sb == null || sb == undefined) {
-        sb = new SpacebrewClient.Spacebrew.Client({
-            reconnect: true,
-            server: "localhost",
-            port: 9000
-        });
-        if (app_name) sb.name(app_name);
-        sb.description("red-node generated node");
-
-
+    // We add all nodes of the same type
+    if(!_lastNodes[node.type]) {
+        _lastNodes[node.type] = [];
     }
-    
-    _spacebrews[node.type] = sb;
+    _lastNodes[node.type][node.id] = node;
+
+    // We try to get the node Information from Spacebrew
     var device = _spacebrewNodes[n.type];
     if (device == null) {
-        if (_pendingSpacebrewNodes[n.type] == undefined) {
-            _pendingSpacebrewNodes[n.type] = [];
-        }
-        _pendingSpacebrewNodes[n.type].push(loadSpacebrew);
-    } else {
-        loadSpacebrew(device);
+        // If it doesn't exist we add to pending
+        _pendingSpacebrewNodes[n.type] = loadSpacebrew;
+    } else  if (!_spacebrews[n.type]) {
+        // If it exist but we don't have any connection to Spacebrew we create one
+        _spacebrews[n.type] = loadSpacebrew(device);
     }
 
     function loadSpacebrew(device) {
         // Publish of the Spacebrew subscribe
         var publishers = device.publish.messages;
-        var sb = _spacebrews[node.type];
+        sb = new SpacebrewClient.Spacebrew.Client({
+            reconnect: true,
+            server: "localhost",
+            port: 9000
+        });
+        // TO-DO if name contains spacebrew it's not added to Spacebrew
+        sb.name("red_node" + node.type.replace(/spacebrew/g, ""));
+        sb.description("red-node generated node");
 
         for (var i in publishers) {
             var publisher = publishers[i];
@@ -119,9 +120,9 @@ function SpacebrewNode(n) {
             sb.addPublish(subscriber.name, subscriber.type);
         }
 
+        // On open we declare the connections with node-red
         sb.onOpen = function() {
             setTimeout(function() {
-                console.log("connecting ios");
                 connectIOs(n, sb)
             }, 3000);
             sb.onOpen = function() {};
@@ -138,6 +139,8 @@ function SpacebrewNode(n) {
 
         // Adding the spacebrew into the clients
         sb.connect();
+
+        return  sb;
     }
     
 
@@ -153,7 +156,11 @@ function SpacebrewNode(n) {
                 msgs.push(null);
             }
         }
-        _lastNodes[node.type].send(msgs);
+
+        var nodes = _lastNodes[node.type];
+        for (var i in nodes) {
+            nodes[i].send(msgs);
+        }
     }
 
     function connectIOs(n, sb) {
@@ -201,8 +208,20 @@ function SpacebrewNode(n) {
 
     // Binding red-node -> Spacebrew
     node.on("close", function() {
-        //sb.reconnect = false;
-        //sb.close();
+        // We remove the node from the ones of its type
+        var nodes = _lastNodes[node.type];
+        nodes.splice(nodes.indexOf(node.id), 1);
+
+        // If there are no nodes of this type we remove the node from Spacebrew
+        if (nodes.length == 0) {
+            // Disconnect from Spacebrew
+            var spacebrew =  _spacebrews[node.type];
+            if (spacebrew) {
+                spacebrew.reconnect = false;
+                spacebrew.close();
+                _spacebrews[node.type] = undefined;
+            }
+        }
     });
 
     node.on("input", function(msg) {
