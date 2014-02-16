@@ -23,7 +23,8 @@ var RED = require(process.env.NODE_RED_HOME+"/red/red"),
     SpacebrewClient = require("./lib/spacebrewClient"),
     _spacebrewNodes = [],
     _pendingSpacebrewNodes = [],
-    _lastNodes = [];
+    _lastNodes = [],
+    _spacebrews = [];
 
 // ====================
 // rfleabrew
@@ -78,6 +79,7 @@ function SpacebrewNode(n) {
         });
 
     _lastNodes[node.type] = node;
+    _spacebrews[node.type] = sb;
         
     if (app_name) sb.name(app_name);
     sb.description("red-node generated node");
@@ -95,10 +97,13 @@ function SpacebrewNode(n) {
     function loadSpacebrew(device) {
         // Publish of the Spacebrew subscribe
         var publishers = device.publish.messages;
+        var sb = _spacebrews[node.type];
+
         for (var i in publishers) {
             var publisher = publishers[i];
             sb.addSubscribe(publisher.name, publisher.type);
         }
+
 
         var extra = fromDevice,
             fromDevice = toDevice,
@@ -198,8 +203,10 @@ function SpacebrewNode(n) {
     });
 
     node.on("input", function(msg) {
+        var sb = _spacebrews[this.type];
         var subscribers = sb.client_config.publish.messages;
         var message;
+
         for (var i in subscribers) {
             var subscriber = subscribers[i],
                 isArray = typeof(msg) == typeof([]);
