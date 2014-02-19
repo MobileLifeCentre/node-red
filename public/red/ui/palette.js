@@ -14,13 +14,12 @@
  * limitations under the License.
  **/
 RED.palette = function() {
-    
     function addNodeType(nt, def) {
         if (def.category != 'config') {
             var nodeDOM = getNodeElement(nt);
 
             if (nodeDOM) {
-                $(nodeDOM).toggleClass("disconnected", false);
+                
             } else {
                 var d = document.createElement("div");
                 d.id = "pn_"+nt;
@@ -77,6 +76,9 @@ RED.palette = function() {
                     revertDuration: 50
                 });
             }
+
+            // We set the current nodes to connected
+            $("."+cleanType(d.type)).css("opacity", "1");
         }
     }
 
@@ -89,9 +91,13 @@ RED.palette = function() {
 
     function removeNodeType(nt) {
         var $node = $(getNodeElement(nt));
-        $node.toggleClass("disconnected", true);
-        
         $node.remove();
+        
+        $("."+cleanType(nt)).css("opacity", "0.5");
+    }
+
+    function cleanType(type) {
+        return type.replace(/[\.\:]/g, "");
     }
     
     $(".palette-header").click(

@@ -700,6 +700,11 @@ RED.view = function() {
         return "node" + id.replace(".", "");
     }
 
+    function cleanType(type) {
+        // This method is also used in palette.js
+        return type.replace(/[\.\:]/g, "");
+    }
+
     function redraw() {
         vis.attr("transform","scale("+scaleFactor+")");
         outer.attr("width", space_width*scaleFactor).attr("height", space_height*scaleFactor);
@@ -718,7 +723,16 @@ RED.view = function() {
             node.exit().remove();
 
             var nodeEnter = node.enter()
-                .insert("svg:g").attr("class", "node nodegroup").attr("id", function(d) {return cleanId(d.id); });
+                .insert("svg:g")
+                    .attr("class", function (d) {
+                        return cleanType(d.type) + " node nodegroup";
+                    })
+                    .attr("id", function(d) {
+                        return cleanId(d.id); 
+                    })
+                    .attr("style", function(d) {
+                        return "opacity: " + (RED.nodes.getType(d.type) != null ? "1.0": "0.5");
+                    });
             
             nodeEnter.each(function(d,i) {
                 var node = d3.select(this);

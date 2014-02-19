@@ -226,24 +226,26 @@ function SpacebrewNode(n) {
 
     node.on("input", function(msg) {
         var sb = _spacebrews[this.type];
-        var subscribers = sb.client_config.publish.messages;
-        var message;
+        if (sb) { 
+            var subscribers = sb.client_config.publish.messages;
+            var message;
 
-        for (var i in subscribers) {
-            var subscriber = subscribers[i],
-                isArray = typeof(msg) == typeof([]);
-            if (msg[i] != null || !isArray) {
-                if (isArray) {
-                    message = msg[i];
-                } else {
-                    message = msg;
+            for (var i in subscribers) {
+                var subscriber = subscribers[i],
+                    isArray = typeof(msg) == typeof([]);
+                if (msg[i] != null || !isArray) {
+                    if (isArray) {
+                        message = msg[i];
+                    } else {
+                        message = msg;
+                    }
+                    if (message.payload) {
+                        message = message.payload;
+                    }
+                    sb.send(subscriber.name, subscriber.type, message);
                 }
-                if (message.payload) {
-                    message = message.payload;
-                }
-                sb.send(subscriber.name, subscriber.type, message);
+                
             }
-            
         }
     });
 }
