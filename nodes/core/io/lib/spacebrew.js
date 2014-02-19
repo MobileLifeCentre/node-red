@@ -50,7 +50,7 @@ module.exports = (function () {
 			if (!reconnect_timer) {
 				reconnect_timer = setInterval(function() {
 					console.log("[reconnect_timer] attempting to reconnect to spacebrew");
-					removeAllClients();
+					//removeAllClients();
 					setupWebsocket();
 				}, 5000);			
 			}

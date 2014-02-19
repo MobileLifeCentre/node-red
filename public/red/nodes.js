@@ -302,7 +302,11 @@ RED.nodes = function() {
                     var def = getType(cleanType(n.type));
                     if (def && def.category == "config") {
                         if (!RED.nodes.node(n.id)) {
-                            var configNode = {id:n.id,type:n.type,users:[]};
+                            var configNode = {
+                                id: n.id,
+                                type: n.type,
+                                users: []
+                            };
                             for (var d in def.defaults) {
                                 configNode[d] = n[d];
                             }
@@ -311,7 +315,16 @@ RED.nodes = function() {
                             RED.nodes.add(configNode);
                         }
                     } else {
-                        var node = {x:n.x,y:n.y,z:n.z,type:0,wires:n.wires, wiresIn:n.wiresIn, changed:false};
+                        var node = {
+                            x: n.x,
+                            y: n.y,
+                            z: n.z,
+                            type: 0,
+                            wires: n.wires,
+                            wiresIn: n.wiresIn,
+                            changed: false
+                        };
+
                         if (createNewIds) {
                             node.z = RED.view.getWorkspace();
                             node.id = getID();
@@ -342,9 +355,8 @@ RED.nodes = function() {
                             node._def.inputs = n.wiresIn.length;
                         }
 
-                        node.outputs = n.outputs||node._def.outputs;
-                        node.inputs = n.inputs||node._def.inputs;
-
+                        node.outputs = n.outputs || node._def.outputs;
+                        node.inputs = n.inputs || node._def.inputs;
                       
                         for (var d in node._def.defaults) {
                             node[d] = n[d];
@@ -362,6 +374,8 @@ RED.nodes = function() {
                     }
                 }
             }
+
+            // We add the links
             for (var i in new_nodes) {
                 var n = new_nodes[i];
                 for (var w1 in n.wires) {
@@ -376,9 +390,10 @@ RED.nodes = function() {
 
                                 for (var w4 in wiresInPort) {
                                     var wire = wiresInPort[w4];
-                                    if (wire.id == n.id && wire.source == w1) {
+                                    var new_node = node_map[wire.id];
+                                    if (new_node.id == n.id && wire.source == parseInt(w1)) {
                                         var link = {
-                                            source:n,
+                                            source: n,
                                             sourcePort: w1,
                                             target: node_map[wires[w2]],
                                             targetPort: w3
