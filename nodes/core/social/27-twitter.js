@@ -236,6 +236,13 @@ function TwitterOutNode(n) {
             } else {
                 node.on("input", function(msg) {
                     if (msg != null) {
+			if (typeof(msg) == typeof("") || typeof(msg) == typeof(1)) {
+				var text = msg + "";
+				msg = {
+				   payload: text
+				};
+                        }
+			
                         if (msg.payload.length > 140) {
                             msg.payload = msg.payload.slice(0,139);
                             node.warn("Tweet greater than 140 : truncated");

@@ -240,14 +240,20 @@ Node.prototype.send = function(msg) {
 
 
                 if (!sentRealtimeFeedback) {
+                    try {
                     realtime.send(JSON.stringify({
                         "message": {
                             "source": {
-                                "node": this,
+                                "node": {
+				   id:  this.id
+				},
                                 "port": parseInt(i)
                             }
                         }
                     }));
+                   } catch (ex) {
+			console.log(ex);
+                   }
                 }
             }
         }
@@ -257,19 +263,25 @@ Node.prototype.send = function(msg) {
 
 }
 function sendRealtime(sourceNode, sourcePort, targetNode, targetPort, msg) {
+    try {
     realtime.send(JSON.stringify({
         "message": {
             "source": {
-                "node": sourceNode,
+                "node": {
+			id: sourceNode.id
+		},
                 "port": sourcePort
             },
             "target": {
-                "node": targetNode,
+                "node": {id: targetNode.id},
                 "port": targetPort
             },
             "message": msg
         }
     }));
+    } catch (ex) {
+         console.log(ex);
+    }
 }
 
 module.exports.Node = Node;

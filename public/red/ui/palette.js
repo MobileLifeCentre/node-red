@@ -97,7 +97,7 @@ RED.palette = function() {
     }
 
     function cleanType(type) {
-        return type.replace(/[\.\:]/g, "");
+        return type.replace(/[\.\:\>\<]/g, "");
     }
     
     $(".palette-header").click(
