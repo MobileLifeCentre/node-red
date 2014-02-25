@@ -25,17 +25,15 @@ function FunctionNode(n) {
     RED.nodes.createNode(this,n);
     this.name = n.name;
     this.func = n.func;
-    var functionText = "var results = (function(msg){"+this.func+"\n})(msg);";
     this.topic = n.topic;
     this.context = {global:RED.settings.functionGlobalContext || {}};
-    try {
-        this.script = vm.createScript(functionText);
+    var functionText = "'use strict'; return (function(msg){" + this.func + "\n})(msg);";
+    this.code = new Function('context', 'msg', functionText);
+    try {           
         this.on("input", function(msg) {
                 if (msg != null) {
-                    var sandbox = {msg:msg,console:console,util:util,Buffer:Buffer,context:this.context};
                     try {
-                        this.script.runInNewContext(sandbox);
-                        var results = sandbox.results;
+                        var results = this.code(this.context, msg);
 
                         if (results == null) {
                             results = [];
