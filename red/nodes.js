@@ -177,7 +177,6 @@ Node.prototype.send = function(msg) {
         msg = [msg];
     }
 
-
     for (var i in this.wires) {
         var wires = this.wires[i];
         if (i < msg.length) {
@@ -222,7 +221,7 @@ Node.prototype.send = function(msg) {
 
                                     if (found) {
                                         sentRealtimeFeedback = true;
-                                        sendRealtime(this, parseInt(i), node, parseInt(l), m);
+                                        this.sendRealtime(this, parseInt(i), node, parseInt(l), m);
                                         newMessage.push(m);
                                     } else {
                                         newMessage.push(null);
@@ -230,7 +229,7 @@ Node.prototype.send = function(msg) {
                                 }
                                 m = newMessage;
                             } else {
-                                sendRealtime(this, parseInt(i), node, 0, m);
+                                this.sendRealtime(this, parseInt(i), node, 0, m);
                             }
                             
                             node.receive(m);
@@ -240,47 +239,66 @@ Node.prototype.send = function(msg) {
 
 
                 if (!sentRealtimeFeedback) {
-                    try {
-                    realtime.send(JSON.stringify({
-                        "message": {
-                            "source": {
-                                "node": {
-				   id:  this.id
-				},
-                                "port": parseInt(i)
-                            }
-                        }
-                    }));
-                   } catch (ex) {
-			console.log(ex);
-                   }
+                    this.sendRealtime(this, parseInt(i));
                 }
             }
         }
     }
-
-
-
 }
-function sendRealtime(sourceNode, sourcePort, targetNode, targetPort, msg) {
-    try {
-    realtime.send(JSON.stringify({
-        "message": {
-            "source": {
-                "node": {
-			id: sourceNode.id
-		},
-                "port": sourcePort
-            },
-            "target": {
-                "node": {id: targetNode.id},
-                "port": targetPort
-            },
-            "message": msg
+
+Node.prototype.sendRealtime = function(sourceNode, sourcePort, targetNode, targetPort, msg) {
+    // We send message just once per second
+    var now = new Date(),
+        lastMsg;
+
+    // We get the lastTime a message was sent to a pair sourcePort, targetPort
+    // TO-DO see if there is a C++ map-like implementation to do this nicer
+    if (!this.lastRealtimeMessage) {
+        this.lastRealtimeMessage = {};
+    }
+    var lastRTMessage = this.lastRealtimeMessage;
+    if (!lastRTMessage[sourcePort]) {
+        lastRTMessage[sourcePort] = {};
+    }
+    var lastRTMessageInPort = lastRTMessage[sourcePort];
+
+    if (targetNode) {
+        if (!lastRTMessageInPort[targetNode.id]) {
+            lastRTMessageInPort[targetNode.id] = {};
         }
-    }));
-    } catch (ex) {
-         console.log(ex);
+        var lastRTMessageInPortToNode = lastRTMessageInPort[targetNode.id];
+        lastMsg = lastRTMessageInPortToNode[targetPort];
+    } else {
+        lastMsg = lastRTMessageInPort;
+    }
+
+    if (now - (lastMsg || 0) > 1000) {
+        if (targetNode) {
+            this.lastRealtimeMessage[sourcePort][targetNode.id][targetPort] = now;
+        } else {
+            this.lastRealtimeMessage[sourcePort] = now;
+        }
+        try {
+            var realtimeMsg = {"message": {
+                    "source": {
+                        "node": {
+                            id: sourceNode.id
+                        },
+                        "port": sourcePort
+                    }
+                }};
+
+            if (targetNode) {
+                realtimeMsg.message["target"] = {
+                    "node": { id: targetNode.id },
+                    "port": targetPort
+                };
+            }
+
+            realtime.send(JSON.stringify(realtimeMsg));
+        } catch (ex) {
+             console.log(ex);
+        }
     }
 }
 
