@@ -74,6 +74,7 @@ function getFileMeta(root,path) {
         }
     }
     fs.closeSync(fd);
+    buffer = null;
     return meta;
 }
 function getFileBody(root,path) {
@@ -111,6 +112,7 @@ function getFileBody(root,path) {
         }
     }
     fs.closeSync(fd);
+    buffer = null;
     return body;
 }
 
