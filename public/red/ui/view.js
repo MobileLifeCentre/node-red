@@ -190,8 +190,6 @@ RED.view = function() {
             lasso = vis.append('rect')
                 .attr("ox",point[0])
                 .attr("oy",point[1])
-                .attr("rx",2)
-                .attr("ry",2)
                 .attr("x",point[0])
                 .attr("y",point[1])
                 .attr("width",0)
@@ -744,7 +742,7 @@ RED.view = function() {
 
                 if (d._def.badge) {
                     var badge = node.append("svg:g").attr("class","node_badge_group");
-                    var badgeRect = badge.append("rect").attr("class","node_badge").attr("rx",5).attr("ry",5).attr("width",40).attr("height",15);
+                    var badgeRect = badge.append("rect").attr("class","node_badge").attr("width",40).attr("height",15);
                     badge.append("svg:text").attr("class","node_badge_label").attr("x",35).attr("y",11).attr('text-anchor','end').text(d._def.badge());
                     if (d._def.onbadgeclick) {
                         badgeRect.attr("cursor","pointer")
@@ -757,16 +755,12 @@ RED.view = function() {
                         .attr("transform",function(d) { return "translate("+((d._def.align == "right") ? 94 : -25)+",2)"; })
                         .attr("class",function(d) { return "node_button "+((d._def.align == "right") ? "node_right_button" : "node_left_button"); });
                     nodeButtonGroup.append('rect')
-                        .attr("rx",8)
-                        .attr("ry",8)
                         .attr("width",32)
                         .attr("height",node_height-4)
                         .attr("fill","#eee");//function(d) { return d._def.color;})
                     nodeButtonGroup.append('rect')
                         .attr("x",function(d) { return d._def.align == "right"? 10:5})
                         .attr("y",4)
-                        .attr("rx",5)
-                        .attr("ry",5)
                         .attr("width",16)
                         .attr("height",node_height-12)
                         .attr("fill",function(d) { return d._def.color;})
@@ -787,9 +781,7 @@ RED.view = function() {
 
                 var mainRect = node.append("rect")
                     .attr("class", "node")
-                    .classed("node_unknown",function(d) { return d.type == "unknown"; }) 
-                    .attr("rx", 6)
-                    .attr("ry", 6)
+                    .classed("node_unknown",function(d) { return d.type == "unknown"; })
                     .attr("fill",function(d) { return d._def.color;})
                     .on("mousedown",nodeMouseDown)
                     .on("touchstart",nodeMouseDown)
@@ -805,12 +797,8 @@ RED.view = function() {
                             node.classed("node_hovered",false);
                     });
 
-               //node.append("rect").attr("class", "node-gradient-top").attr("rx", 6).attr("ry", 6).attr("height",30).attr("stroke","none").attr("fill","url(#gradient-top)").style("pointer-events","none");
-               //node.append("rect").attr("class", "node-gradient-bottom").attr("rx", 6).attr("ry", 6).attr("height",30).attr("stroke","none").attr("fill","url(#gradient-bottom)").style("pointer-events","none");
-
                 mainRect.on("mouseup",nodeMouseUp);
                 mainRect.on("touchend",function(){ clearTimeout(pressTimer); nodeMouseUp; });
-                //mainRect.on("touchend",nodeMouseUp);
 
                 if (d._def.icon) {
                     var icon = node.append("image")
@@ -834,14 +822,12 @@ RED.view = function() {
                     text.attr('text-anchor','end');
                 }
 
-                //node.append("path").attr("class","node_error").attr("d","M 3,-3 l 10,0 l -5,-8 z");
                 node.append("image").attr("class","node_error hidden").attr("xlink:href","icons/node-error.png").attr("x",0).attr("y",-6).attr("width",10).attr("height",9);
                 node.append("image").attr("class","node_changed hidden").attr("xlink:href","icons/node-changed.png").attr("x",12).attr("y",-6).attr("width",10).attr("height",10);
             });
 
             node.each(function(d, i) {
                 if (d.dirty) {
-                    //if (d.x < -50) deleteSelection();  // Delete nodes if dragged back to palette
                     if (d.resize) {
                         var l = d._def.label;
                         l = (typeof l === "function" ? l.call(d) : l)||"";
@@ -856,9 +842,7 @@ RED.view = function() {
                         .classed("node_selected",function(d) { return d.selected; })
                         .classed("node_highlighted",function(d) { return d.highlighted; })
                     ;
-                    //thisNode.selectAll(".node-gradient-top").attr("width",function(d){return d.w});
-                    //thisNode.selectAll(".node-gradient-bottom").attr("width",function(d){return d.w}).attr("y",function(d){return d.h-30});
-
+                    
                     thisNode.selectAll(".node_label_right").attr('x', function(d){return d.w-23-(d.outputs>0?5:0);});
                     thisNode.selectAll(".node_icon_right").attr("x",function(d){return d.w-16-(d.outputs>0?5:0);});
 
@@ -866,7 +850,7 @@ RED.view = function() {
                     var y = (d.h/2)-((numOutputs-1)/2)*13;
                     d.ports = d.ports || d3.range(numOutputs);
                     d._ports = thisNode.selectAll(".port_output").data(d.ports);
-                    d._ports.enter().append("rect").attr("class","port port_output").attr("rx",3).attr("ry",3).attr("width",10).attr("height",10)
+                    d._ports.enter().append("rect").attr("class","port port_output").attr("width",10).attr("height",10).attr("rx", 10)
                         .on("mousedown",function(){var node = d; return function(d,i){portMouseDown(node,0,i);}}() )
                         .on("touchstart",function(){var node = d; return function(d,i){portMouseDown(node,0,i);}}() )
                         .on("mouseup",function(){var node = d; return function(d,i){portMouseUp(node,0,i);}}() )
@@ -919,8 +903,7 @@ RED.view = function() {
                     d._portsInput.enter()
                         .append("rect")
                         .attr("class","port port_input")
-                        .attr("rx",3).attr("ry",3)
-                        .attr("width",10).attr("height",10)
+                        .attr("width",5).attr("height",10)
                         .on("mousedown",function(){var node = d; return function(d,i){portMouseDown(node,1,i);}}() )
                         .on("touchstart",function(){var node = d; return function(d,i){portMouseDown(node,1,i);}}() )
                         .on("mouseup",function(){var node = d; return function(d,i){portMouseUp(node,1,i);}}() )
@@ -932,7 +915,7 @@ RED.view = function() {
                     if (d._portsInput) {
                         var numInputs = d._def.inputs || 1;
                         var y = (d.h/2)-((numInputs-1)/2)*13;
-                        var x = -5;
+                        var x = -2.5;
                         d._portsInput.each(function(d, i) {
                                 var port = d3.select(this);
                                 port.attr("y",(y+13*i)-5).attr("x", x);
@@ -953,10 +936,6 @@ RED.view = function() {
                             }
                             return 1;
                     });
-
-                    //thisNode.selectAll('.node_right_button').attr("transform",function(d){return "translate("+(d.w - d._def.button.width.call(d))+","+0+")";}).attr("fill",function(d) {
-                    //         return typeof d._def.button.color  === "function" ? d._def.button.color.call(d):(d._def.button.color != null ? d._def.button.color : d._def.color)
-                    //});
 
                     thisNode.selectAll('.node_badge_group').attr("transform",function(d){return "translate("+(d.w-40)+","+(d.h+3)+")";});
                     thisNode.selectAll('text.node_badge_label').text(function(d,i) {

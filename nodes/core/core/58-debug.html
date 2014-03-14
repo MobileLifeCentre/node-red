@@ -91,7 +91,7 @@
         toolbar.id = "debug-toolbar";
         content.appendChild(toolbar);
 
-        toolbar.innerHTML = '<div class="btn-group pull-right"><a id="debug-tab-clear" title="clear log" class="btn btn-mini" href="#"><i class="icon-trash"></i></a></div> ';
+        toolbar.innerHTML = '<div class="btn-group btn-default pull-right"><a id="debug-tab-clear" title="clear log" class="btn btn-default btn-mini" href="#"><i class="glyphicon glyphicon-trash"></i></a></div> ';
 
         var messages = document.createElement("div");
         messages.id = "debug-content";
@@ -193,7 +193,7 @@
 <style>
     #debug-content {
         position: absolute;
-        top: 30px;
+        top: 44px;
         bottom: 0px;
         left:0px;
         right: 0px;
@@ -201,8 +201,8 @@
     }
     #debug-toolbar {
         padding: 3px 10px;
-        height: 24px;
-        background: #f3f3f3;
+        height: 44px;
+        background: #fff;
     }
     .debug-message {
         cursor: pointer;
