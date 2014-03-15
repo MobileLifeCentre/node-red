@@ -563,6 +563,7 @@ button.ui-button::-moz-focus-inner {
 .ui-menu .ui-menu-item a.ui-state-active {
 	font-weight: normal;
 	margin: -1px;
+	color: white;
 }
 
 .ui-menu .ui-state-disabled {
@@ -633,6 +634,22 @@ button.ui-button::-moz-focus-inner {
 	background-position: 0 0;
 }
 
+.btn.input-append-right {
+	height: 22px;
+}
+
+a.ui-spinner-button {
+	height: 12px;
+}
+
+a.ui-spinner-button.ui-spinner-up {
+	top: 2.5px;
+}
+
+a.ui-spinner-button.ui-spinner-down {
+	top: 13px;
+}
+	
 /* For IE8 - See #6727 */
 .ui-slider.ui-state-disabled .ui-slider-handle,
 .ui-slider.ui-state-disabled .ui-slider-range {
@@ -691,7 +708,7 @@ button.ui-button::-moz-focus-inner {
 	margin: .2em 0;
 	vertical-align: middle;
 	margin-left: .4em;
-	margin-right: 22px;
+	margin-right: 16px;
 }
 .ui-spinner-button {
 	width: 16px;

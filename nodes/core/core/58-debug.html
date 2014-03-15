@@ -16,14 +16,14 @@
 
 <script type="text/x-red" data-template-name="debug">
     <div class="form-row">
-        <label for="node-input-complete"><i class="icon-list"></i> Output</label>
+        <label for="node-input-complete"><i class="glyphicon glyphicon-list"></i> Output</label>
         <select type="text" id="node-input-complete" style="display: inline-block; width: auto; vertical-align: top;">
             <option value=false>Payload only</option>
             <option value=true>Complete msg object</option>
         </select>
     </div>
     <div class="form-row">
-        <label for="node-input-name"><i class="icon-tag"></i> Name</label>
+        <label for="node-input-name"><i class="glyphicon glyphicon-tag"></i> Name</label>
         <input type="text" id="node-input-name" placeholder="Name">
     </div>
 </script>
@@ -170,7 +170,7 @@
             };
             ws.onclose = function() {
                 if (errornotification == null) {
-                    errornotification = RED.notify("<b>Error</b>: Lost connection to server","error",true);
+                    errornotification = RED.notify("<b>Error</b>: Lost connection to server","danger",true);
                 }
                 setTimeout(debugConnect,1000);
             }

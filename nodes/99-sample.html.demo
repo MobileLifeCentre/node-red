@@ -30,14 +30,14 @@
    <!-- (with the 'node-input-' prefix).                                     -->
    <!-- The available icon classes are defined in Twitter Bootstrap          -->
     <div class="form-row">
-        <label for="node-input-topic"><i class="icon-tasks"></i> Topic</label>
+        <label for="node-input-topic"><i class="glyphicon glyphicon-tasks"></i> Topic</label>
         <input type="text" id="node-input-topic" placeholder="Topic">
     </div>
 
     <!-- By convention, most nodes have a 'name' property. The following div -->
     <!-- provides the necessary field.                                       -->
     <div class="form-row">
-        <label for="node-input-name"><i class="icon-tag"></i> Name</label>
+        <label for="node-input-name"><i class="glyphicon glyphicon-tag"></i> Name</label>
         <input type="text" id="node-input-name" placeholder="Name">
     </div>
 </script>
