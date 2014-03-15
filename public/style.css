@@ -23,6 +23,15 @@ body {
   text-rendering: optimizeLegibility
 }
 
+.btn {
+  padding: 2px 12px 2px 12px;
+  margin-bottom: 4px;
+}
+
+.dropdown-menu {
+  margin: -5px 0 0 !important;
+}
+
 .brand .spacebrew {
   font-family: 'Oswald';
   text-transform: uppercase;
@@ -497,6 +506,7 @@ a.brand img {
 .form-row label {
     display: inline-block;
     width: 100px;
+    text-transform: uppercase;
 }
 .form-row input {
     width:70%;
@@ -509,8 +519,8 @@ input.input-append-left {
 button.input-append-right {
     border-top-left-radius: 0px !important;
     border-bottom-left-radius: 0px !important;
-    border-top-right-radius: 4px !important;
-    border-bottom-right-radius: 4px !important;
+    border-top-right-radius: 0px !important;
+    border-bottom-right-radius: 0px !important;
     margin-left: -1px !important;
     padding-left: 4px !important;
     padding-right: 4px !important;
