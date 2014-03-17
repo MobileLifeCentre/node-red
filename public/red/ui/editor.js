@@ -34,7 +34,7 @@ RED.editor = function() {
                     input.replaceWith('<select style="width: 60%;" id="node-input-'+d+'"></select>');
                     updateConfigNodeSelect(d,def.type,node[d]);
                     var select = $("#node-input-"+d);
-                    select.after(' <a id="node-input-lookup-'+d+'" class="btn"><i class="icon icon-pencil"></i></a>');
+                    select.after(' <a id="node-input-lookup-'+d+'" class="btn btn-default"><i class="glyphicon glyphicon-pencil"></i></a>');
                     var name = d;
                     var type = def.type;
                     $('#node-input-lookup-'+d).click(function(e) {
