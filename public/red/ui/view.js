@@ -915,9 +915,10 @@ RED.view = function() {
                         var x = d.w + 5;
                         d._ports_labels.each(function(node, i) {
                             var label = d3.select(this);
-                            label.attr("y",(y + 13*i) + 2.5)
-                                .attr("x", x + 2.5)
-                                .text(d._def.outputLabels[i].name);
+                            if (d._def.outputLabels.length > i)
+                                label.attr("y",(y + 13*i) + 2.5)
+                                    .attr("x", x + 2.5)
+                                    .text(d._def.outputLabels[i].name);
                         });
                     }
 
@@ -990,7 +991,8 @@ RED.view = function() {
                         var y = (d.h/2) - ((numInputs - 1)/2)*13;
                         var x = -2.5;
                         d._portsInputs_labels.each(function(node, i) {
-                                var label = d3.select(this);
+                            var label = d3.select(this);
+                            if (d._def.inputLabels.length > i)
                                 label
                                     .attr("y", (y + 13*i) + 2.5)
                                     .attr("x", x - 2.5)
