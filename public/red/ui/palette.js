@@ -55,7 +55,29 @@ RED.palette = function() {
                 $("#palette-"+def.category).append(d);
                 
                 d.onmousedown = function(e) { e.preventDefault(); }
-                
+                d.onmouseover = function(e) {
+                    RED.nodes.eachNode(function(node) {
+                        if (node.type == d.type) {
+                            $( "a[href='#"+ node.z +"']").parent().toggleClass("workspace_highlighted", true);
+                        }
+                    });
+                    $("."+cleanType(d.type)).each(function(i, node) {
+                        var n = d3.select(node);
+                        n.classed("node_highlighted", true);
+                    });
+                };
+
+                d.onmouseout = function(e) {
+                    RED.nodes.eachNode(function(node) {
+                        if (node.type == d.type) {
+                            $( "a[href='#"+ node.z +"']").parent().toggleClass("workspace_highlighted", false);
+                        }
+                    });
+                    $("."+cleanType(d.type)).each(function(i, node) {
+                        var n = d3.select(node);
+                        n.classed("node_highlighted", false);
+                    });
+                }
                 $(d).popover({
                         title:d.type,
                         placement:"right",

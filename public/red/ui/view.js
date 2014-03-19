@@ -796,7 +796,7 @@ RED.view = function() {
                             }
                             d3.select(this).attr("fill-opacity",op);
                         }})
-                        .on("click",nodeButtonClicked)
+                        .on("click", nodeButtonClicked)
                         .on("touchstart",nodeButtonClicked)
                 }
 

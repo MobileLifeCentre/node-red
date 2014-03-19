@@ -20,14 +20,19 @@ RED.editor = function() {
 
 
     function showEditDialog(node) {
+
         editing_node = node;
         RED.view.state(RED.state.EDITING);
-        $("#dialog-form").html($("script[data-template-name='"+node.type+"']").html()); 
+        var type = node.type;
+        if (type.indexOf(".") != -1) {
+            type = node.cleanType;
+        }
+        $("#dialog-form").html($("script[data-template-name='"+ type+"']").html()); 
         if (node._def.defaults) {
             for (var d in node._def.defaults) {
                 var def = node._def.defaults[d];
                 var input = $("#node-input-"+d);
-                
+                console.log(d);
                 var node_def = RED.nodes.getType(def.type);
                 
                 if (node_def && node_def.category == "config") {

@@ -275,6 +275,10 @@ a.brand img {
   margin-left: 10px;
 }
 
+#palette-devices>:first-child {
+  display: none;
+}
+
 @-webkit-keyframes text-marquee
 {
   from {-webkit-transform: translateX(0%); }
@@ -511,9 +515,14 @@ a.brand img {
 }
 .node_highlighted {
    stroke: #dd1616;
-   stroke-width: 3;
+   stroke-width: 2;
    stroke-dasharray: 10, 4;
 }
+
+.workspace_highlighted a {
+  text-decoration: underline;
+}
+
 .node_hovered {
   box-shadow: 0 11px 18px rgba(0,0,0,0.2);
   transform: translateY(-20px) scale(1, 1);

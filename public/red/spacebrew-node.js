@@ -35,8 +35,12 @@ var SpacebrewNode = (function(Spacebrew) {
 		        defaults: {
 		            name: {
 		            	value: (device.nameLabel? device.nameLabel: device.name)
+		            },
+		            device: {
+		            	value: (device.nameLabel? device.nameLabel: device.name)
 		            }
 		        },
+		        device: (device.nameLabel? device.nameLabel: device.name),
 		        spacebrewRaw: device,
 		        inputLabels: device.subscribe.messages,
 		        outputLabels: device.publish.messages,
