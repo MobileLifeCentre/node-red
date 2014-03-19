@@ -73,7 +73,7 @@ RED.library = function() {
             return li;
         }
         
-        function buildFileList(root,data) {
+        function buildFileList(root, data) {
             var ul = document.createElement("ul");
             
             for (var i in data) {
@@ -155,27 +155,7 @@ RED.library = function() {
         });
     
         $('#node-input-'+options.type+'-menu-save-library').click(function(e) {
-                //var found = false;
                 var name = $("#node-input-name").val().replace(/(^\s*)|(\s*$)/g,"");
-    
-                //var buildPathList = function(data,root) {
-                //    var paths = [];
-                //    if (data.d) {
-                //        for (var i in data.d) {
-                //            var dn = root+(root==""?"":"/")+i;
-                //            var d = {
-                //                label:dn,
-                //                files:[]
-                //            };
-                //            for (var f in data.d[i].f) {
-                //                d.files.push(data.d[i].f[f].fn.split("/").slice(-1)[0]);
-                //            }
-                //            paths.push(d);
-                //            paths = paths.concat(buildPathList(data.d[i],root+(root==""?"":"/")+i));
-                //        }
-                //    }
-                //    return paths;
-                //};
                 $("#node-dialog-library-save-folder").attr("value","");
     
                 var filename = name.replace(/[^\w-]/g,"-");
@@ -183,19 +163,6 @@ RED.library = function() {
                     filename = "unnamed-"+options.type;
                 }
                 $("#node-dialog-library-save-filename").attr("value",filename+".js");
-    
-                //var paths = buildPathList(libraryData,"");
-                //$("#node-dialog-library-save-folder").autocomplete({
-                //        minLength: 0,
-                //        source: paths,
-                //        select: function( event, ui ) {
-                //            $("#node-dialog-library-save-filename").autocomplete({
-                //                    minLength: 0,
-                //                    source: ui.item.files
-                //            });
-                //        }
-                //});
-    
                 $( "#node-dialog-library-save" ).dialog( "open" );
                 e.preventDefault();
         });
@@ -260,33 +227,6 @@ RED.library = function() {
                 return;
             }
             var fullpath = pathname+(pathname==""?"":"/")+filename;
-            if (!overwrite) {
-                //var pathnameParts = pathname.split("/");
-                //var exists = false;
-                //var ds = libraryData;
-                //for (var pnp in pathnameParts) {
-                //    if (ds.d && pathnameParts[pnp] in ds.d) {
-                //        ds = ds.d[pathnameParts[pnp]];
-                //    } else {
-                //        ds = null;
-                //        break;
-                //    }
-                //}
-                //if (ds && ds.f) {
-                //    for (var f in ds.f) {
-                //        if (ds.f[f].fn == fullpath) {
-                //            exists = true;
-                //            break;
-                //        }
-                //    }
-                //}
-                //if (exists) {
-                //    $("#node-dialog-library-save-type").html(options.type);
-                //    $("#node-dialog-library-save-name").html(fullpath);
-                //    $("#node-dialog-library-save-confirm").dialog( "open" );
-                //    return;
-                //}
-            }
             var queryArgs = [];
             for (var i in options.fields) {
                 var field = options.fields[i];

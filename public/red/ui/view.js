@@ -158,8 +158,6 @@ RED.view = function() {
                 targetPort.classed("port_streaming", false);
             }, 300);
         }
-        
-        
     }
 
     function canvasMouseDown() {
@@ -384,6 +382,7 @@ RED.view = function() {
                 nn.type = selected_tool;
                 nn._def = RED.nodes.getType(nn.type);
                 nn.outputs = nn._def.outputs;
+                nn.inputs = nn._def.inputs;
                 nn.changed = true;
                 nn.h = Math.max(node_height,(nn.outputs||0) * 15);
 
@@ -626,7 +625,7 @@ RED.view = function() {
 
     function nodeMouseUp(d) {
         // VICTOR: interesting in here
-        portMouseUp(d, d._def.inputs > 0 ? 1 : 0, 0);
+        portMouseUp(d, d.inputs > 0 ? 1 : 0, 0);
     }
 
     function nodeMouseDown(d) {
@@ -723,7 +722,6 @@ RED.view = function() {
 
         if (mouse_mode != RED.state.JOINING) {
             // Don't bother redrawing nodes if we're drawing links
-
             var node = vis.selectAll(".nodegroup")
                 .data(RED.nodes.nodes.filter(function(d) { 
                     return d.z == activeWorkspace 
@@ -748,8 +746,8 @@ RED.view = function() {
 
                 var l = d._def.label;
                 l = (typeof l === "function" ? l.call(d) : l)||"";
-                d.w = Math.max(node_width, calculateTextWidth(l)+(d._def.inputs>0?7:0) );
-                d.h = Math.max(node_height, Math.max((d.outputs||0), (d._def.inputs||0)) * 15);
+                d.w = Math.max(node_width, calculateTextWidth(l)+(d.inputs > 0 ? 7:0) );
+                d.h = Math.max(node_height, Math.max((d.outputs||0), (d.inputs||0)) * 15);
 
 
                 var hoverRect = node.append("rect")
@@ -835,7 +833,7 @@ RED.view = function() {
                     if (d._def.align) {
                         icon.attr('class','node_icon node_icon_'+d._def.align);
                     }
-                    if (d._def.inputs > 0) {
+                    if (d.inputs > 0) {
                         icon.attr("x",8);
                     }
                     icon.style("pointer-events","none");
@@ -854,8 +852,8 @@ RED.view = function() {
                     if (d.resize) {
                         var l = d._def.label;
                         l = (typeof l === "function" ? l.call(d) : l)||"";
-                        d.w = Math.max(node_width, calculateTextWidth(l)+(d._def.inputs>0?7:0) );
-                        d.h = Math.max(node_height,(d.outputs||0) * 15);
+                        d.w = Math.max(node_width, calculateTextWidth(l)+(d.inputs>0?7:0) );
+                        d.h = Math.max(node_height, Math.max((d.outputs||0), (d.inputs||0)) * 15);
                     }
 
                     var thisNode = d3.select(this);
@@ -899,7 +897,6 @@ RED.view = function() {
                         d._ports.each(function(d, i) {
                                 var port = d3.select(this);
                                 port.attr("y",(y+13*i)-5).attr("x",x);
-
                         });
                     }
 
@@ -950,8 +947,7 @@ RED.view = function() {
                         .classed("hidden",function(d) { return d.valid; });
                         
                     
-                    var numInputs = d._def.inputs;
-                    d.inputs = d._def.inputs;
+                    var numInputs = d.inputs;
                     var y = (d.h/2)-((numInputs-1)/2)*13;
                     d.portsInput = d.portsInput || d3.range(numInputs);
                     d._portsInput = thisNode.selectAll(".port_input").data(d.portsInput);
@@ -959,7 +955,7 @@ RED.view = function() {
                     d._portsInput.enter()
                         .append("rect")
                         .attr("class","port port_input")
-                        .attr("width",5).attr("height",10)
+                        .attr("width", 5).attr("height",10)
                         .on("mousedown",function(){var node = d; return function(d,i){portMouseDown(node,1,i);}}() )
                         .on("touchstart",function(){var node = d; return function(d,i){portMouseDown(node,1,i);}}() )
                         .on("mouseup",function(){var node = d; return function(d,i){portMouseUp(node,1,i);}}() )
@@ -969,14 +965,14 @@ RED.view = function() {
                     d._portsInput.exit().remove();
                     
                     if (d._portsInput) {
-                        var numInputs = d._def.inputs || 1;
+                        var numInputs = d.inputs || 1;
                         var y = (d.h/2)-((numInputs-1)/2)*13;
                         var x = -2.5;
                         d._portsInput.each(function(d, i) {
-                                var port = d3.select(this);
-                                port
-                                    .attr("y", (y+13*i) - 5)
-                                    .attr("x", x);
+                            var port = d3.select(this);
+                            port
+                                .attr("y", (y+13*i) - 5)
+                                .attr("x", x);
                         });
                     }
 

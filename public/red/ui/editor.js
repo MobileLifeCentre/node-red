@@ -110,15 +110,16 @@ RED.editor = function() {
         return valid;
     }
     
+    
     function updateNodeProperties(node) {
         node.resize = true;
         node.dirty = true;
         var removedLinks = [];
+
         if (node.outputs < node.ports.length) {
             while (node.outputs < node.ports.length) {
                 node.ports.pop();
             }
-            var removedLinks = [];
             RED.nodes.eachLink(function(l) {
                     if (l.source === node && l.sourcePort >= node.outputs) {
                         removedLinks.push(l);
@@ -130,6 +131,26 @@ RED.editor = function() {
         } else if (node.outputs > node.ports.length) {
             while (node.outputs > node.ports.length) {
                 node.ports.push(node.ports.length);
+            }
+        }
+
+        if (node.inputs < node.portsInput.length) {
+            while (node.inputs < node.portsInput.length) {
+                node.portsInput.pop();
+            }
+            var removedLinks = [];
+            RED.nodes.eachLink(function(l) {
+                console.log(l);
+                if (l.target === node && l.targetPort >= node.inputs) {
+                    removedLinks.push(l);
+                }
+            });
+            for (var l in removedLinks) {
+                RED.nodes.removeLink(removedLinks[l]);
+            }
+        } else if (node.inputs > node.portsInput.length) {
+            while (node.inputs > node.portsInput.length) {
+                node.portsInput.push(node.portsInput.length);
             }
         }
         return removedLinks;
@@ -150,8 +171,7 @@ RED.editor = function() {
                             var changes = {};
                             var changed = false;
                             var wasDirty = RED.view.dirty();
-                            
-                            
+
                             if (editing_node._def.oneditsave) {
                                 var oldValues = {};
                                 for (var d in editing_node._def.defaults) {
@@ -176,8 +196,6 @@ RED.editor = function() {
                                         }
                                     }
                                 }
-                                
-                                
                             }
                             
                             if (editing_node._def.defaults) {
@@ -206,7 +224,6 @@ RED.editor = function() {
                                                     configNode.users.push(editing_node);
                                                 }
                                             }
-                                            
                                             changes[d] = editing_node[d];
                                             editing_node[d] = newValue;
                                             changed = true;
@@ -214,7 +231,6 @@ RED.editor = function() {
                                     }
                                 }
                             }
-                            
                             var removedLinks = updateNodeProperties(editing_node);
                             if (changed) {
                                 var wasChanged = editing_node.changed;
@@ -416,9 +432,8 @@ RED.editor = function() {
                             }
                             configNode.label = configTypeDef.label;
                             configNode._def = configTypeDef;
-                            //console.log(nn.id,nn.label());
                             RED.nodes.add(configNode);
-                            updateConfigNodeSelect(configProperty,configType,configNode.id);
+                            updateConfigNodeSelect(configProperty, configType, configNode.id);
                         } else {
                             configNode = RED.nodes.node(configId);
                             for (var d in configTypeDef.defaults) {

@@ -25,8 +25,14 @@
         <div style="height: 250px;" class="node-text-editor" id="node-input-func-editor" ></div>
     </div>
     <div class="form-row">
+        <div style="float:left">
+            <label for="node-input-inputs"><i class="glyphicon glyphicon-random"></i> Input</label>
+            <input id="node-input-inputs" style="width: 60px; height: 1.7em;" value="1">
+        </div>
+        <div style="float:right">
         <label for="node-input-outputs"><i class="glyphicon glyphicon-random"></i> Outputs</label>
         <input id="node-input-outputs" style="width: 60px; height: 1.7em;" value="1">
+        </div>
     </div>
 </script>
 
@@ -38,22 +44,27 @@
 </script>
 
 <script type="text/javascript">
-    RED.nodes.registerType('function',{
+    RED.nodes.registerType('function', {
         color:"#fdd0a2",
         category: 'function',
         defaults: {
             name: {value:""},
             func: {value:"// The received message is stored in 'msg'\n// It will have at least a 'payload' property:\n//   console.log(msg.payload);\n// The 'context' object is available to store state\n// between invocations of the function\n//   context = {};\n\n\nreturn msg;"},
-            outputs: {value:1}
+            outputs: {value:1},
+            inputs: {value:1}
         },
-        inputs:1,
-        outputs:1,
+        inputs: 1,
+        outputs: 1,
         icon: "function.png",
         label: function() {
             return this.name;
         },
         oneditprepare: function() {
             $( "#node-input-outputs" ).spinner({
+                min:1
+            });
+
+            $( "#node-input-inputs" ).spinner({
                 min:1
             });
 
@@ -75,15 +86,15 @@
             var that = this;
             require(["orion/editor/edit"], function(edit) {
                 that.editor = edit({
-                    parent:document.getElementById('node-input-func-editor'),
+                    parent: document.getElementById('node-input-func-editor'),
                     lang:"js",
                     contents: $("#node-input-func").val()
                 });
                 RED.library.create({
                     url:"functions", // where to get the data from
                     type:"function", // the type of object the library is for
-                    editor:that.editor, // the field name the main text body goes to
-                    fields:['name','outputs']
+                    editor: that.editor, // the field name the main text body goes to
+                    fields: ['name','outputs', 'inputs']
                 });
                 $("#node-input-name").focus();
 

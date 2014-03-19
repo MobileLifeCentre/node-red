@@ -311,11 +311,13 @@ RED.nodes = function() {
                                 type: n.type,
                                 users: []
                             };
+
                             for (var d in def.defaults) {
                                 configNode[d] = n[d];
                             }
                             configNode.label = def.label;
                             configNode._def = def;
+
                             RED.nodes.add(configNode);
                         }
                     } else {
@@ -351,12 +353,12 @@ RED.nodes = function() {
                                 label: "unknown: "+n.type,
                                 labelStyle: "node_label_italic",
                                 outputs: n.outputs || n.wires.length,
-                                inputs: n.inputs || n.wiresIn.length
+                                inputs: n.inputs || n.wiresIn.length || 0
                             }
                         }
                         if (!node._def.outputs) {
                             node._def.outputs = n.wires.length;
-                            node._def.inputs = n.wiresIn.length;
+                            node._def.inputs = n.wiresIn.length || n.inputs;
                         }
 
                         node._def.inputLabels = n.inputLabels;

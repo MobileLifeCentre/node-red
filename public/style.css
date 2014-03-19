@@ -222,6 +222,7 @@ a.brand img {
    user-select: none;
 }
 
+
 .palette-category {
     margin-bottom: 5px;
 }
@@ -268,6 +269,7 @@ a.brand img {
 .palette_label {
    line-height: 25px;
    text-align: center;
+   white-space: nowrap;
   overflow: hidden;
   width: 70px;
   margin-left: 10px;
