@@ -48,6 +48,22 @@
     border-radius: 14px 14px;
  }
 
+ .port_input_label, 
+ .port_output_label {
+   opacity: 0;
+   -webkit-transition: opacity 1s;
+ }
+
+ .node_hovered ~ .port_input_label, 
+ .node_hovered ~ .port_output_label,
+ .node_selected ~ .port_input_label, 
+ .node_selected ~ .port_output_label,
+ .port_hovered ~ .port_input_label, 
+ .port_hovered ~ .port_output_label,
+ .label_selected {
+    opacity: 1;
+ }
+
 .btn {
   border: 0px;
 }
@@ -281,7 +297,7 @@ a.brand img {
    top:8px;
    left: -2.5px;
    box-sizing: border-box;
-   background: #fbc0a8;
+   background: #FF4C03;
    width: 5px;
    height: 10px;
 }
@@ -445,7 +461,7 @@ a.brand img {
 
 }
 .port {
-   fill: #fbc0a8;
+   fill: #FF4C03;;
    cursor: crosshair;
 }
 .node_error {
@@ -488,9 +504,9 @@ a.brand img {
   transform: translateY(-20px) scale(1, 1);
 }
 
-.port_hovered {
-  stroke: #f26448;
-  fill:  #f26448;
+.port_hovered, .port_selected {
+  stroke: #fbc0a8;
+  fill:  #fbc0a8;
 }
 
 .drag_line {

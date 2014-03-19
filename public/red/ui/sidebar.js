@@ -14,8 +14,6 @@
  * limitations under the License.
  **/
 RED.sidebar = function() {
-
-    //$('#sidebar').tabs();
     var sidebar_tabs = RED.tabs.create({
         id:"sidebar-tabs",
         onchange:function(id) {
@@ -27,8 +25,6 @@ RED.sidebar = function() {
         $("#sidebar-content").append(content);
         $(content).hide();
         sidebar_tabs.addTab({id:"tab-"+title,label:title});
-        //content.style.position = "absolute";
-        //$('#sidebar').tabs("refresh");
     }
     
     var content = document.createElement("div");
@@ -87,9 +83,6 @@ RED.sidebar = function() {
     });
     
     function toggleSidebar() {
-        //if ($('#sidebar').tabs( "option", "active" ) === false) {
-        //    $('#sidebar').tabs( "option", "active",0);
-        //}
         var btnSidebar = $("#btn-sidebar");
         btnSidebar.toggleClass("active");
         

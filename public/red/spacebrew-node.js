@@ -29,7 +29,6 @@ var SpacebrewNode = (function(Spacebrew) {
 	function onAddDevice(device) {
 		var type = "spacebrew." + device.name.replace(/ /g, "");
 		if (RED.nodes.getType(type) == undefined && device.name.indexOf("red_node") != 0) {
-			//Spacebrew.comm.send({config: device});
 			
 			RED.nodes.registerType(type, {
 		        category: 'devices',
@@ -38,6 +37,9 @@ var SpacebrewNode = (function(Spacebrew) {
 		            	value: (device.nameLabel? device.nameLabel: device.name)
 		            }
 		        },
+		        spacebrewRaw: device,
+		        inputLabels: device.subscribe.messages,
+		        outputLabels: device.publish.messages,
 		        color:"rgb(215, 215, 160)",
 		        inputs: (device.subscribe != undefined ? device.subscribe.messages.length : 0),
 		        outputs: (device.publish != undefined ? device.publish.messages.length : 0),

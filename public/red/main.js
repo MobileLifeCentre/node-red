@@ -41,7 +41,6 @@ var RED = function() {
         
     function save(force) {
         if (RED.view.dirty()) {
-
             if (!force) {
                 var invalid = false;
                 var unknownNodes = [];

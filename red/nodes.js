@@ -269,7 +269,8 @@ Node.prototype.sendRealtime = function(sourceNode, sourcePort, targetNode, targe
         var lastRTMessageInPortToNode = lastRTMessageInPort[targetNode.id];
         lastMsg = lastRTMessageInPortToNode[targetPort];
     } else {
-        lastMsg = lastRTMessageInPort;
+        lastMsg = this.lastRealtimeMessage[sourcePort];
+        if (typeof(lastMsg) == typeof({})) lastMsg = 0;
     }
 
     if (now - (lastMsg || 0) > 1000) {

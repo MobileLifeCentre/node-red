@@ -159,9 +159,10 @@ RED.nodes = function() {
             node.y = n.y;
             node.z = n.z;
             node.wires = [];
-            for(var i=0;i<n.outputs;i++) {
+            for(var i = 0; i < n.outputs; i++) {
                 node.wires.push([]);
             }
+
             var wires = links.filter(function(d){return d.source === n;});
             for (var i in wires) {
                 var w = wires[i];
@@ -178,6 +179,9 @@ RED.nodes = function() {
                 node.wiresIn[w.targetPort].push({id: w.source.id, source: w.sourcePort});
             }
 
+            // Labels
+            node.inputLabels = n._def.inputLabels;
+            node.outputLabels = n._def.outputLabels;
         }
         return node;
     }
@@ -346,14 +350,17 @@ RED.nodes = function() {
                                 defaults: {},
                                 label: "unknown: "+n.type,
                                 labelStyle: "node_label_italic",
-                                outputs: n.outputs||n.wires.length,
-                                inputs: n.inputs||n.wiresIn.length
+                                outputs: n.outputs || n.wires.length,
+                                inputs: n.inputs || n.wiresIn.length
                             }
                         }
                         if (!node._def.outputs) {
                             node._def.outputs = n.wires.length;
                             node._def.inputs = n.wiresIn.length;
                         }
+
+                        node._def.inputLabels = n.inputLabels;
+                        node._def.outputLabels = n.outputLabels;
 
                         node.outputs = n.outputs || node._def.outputs;
                         node.inputs = n.inputs || node._def.inputs;
