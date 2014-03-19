@@ -269,15 +269,15 @@ Node.prototype.sendRealtime = function(sourceNode, sourcePort, targetNode, targe
         var lastRTMessageInPortToNode = lastRTMessageInPort[targetNode.id];
         lastMsg = lastRTMessageInPortToNode[targetPort];
     } else {
-        lastMsg = this.lastRealtimeMessage[sourcePort];
-        if (typeof(lastMsg) == typeof({})) lastMsg = 0;
+        lastMsg = this.lastRealtimeMessage[sourcePort].time;
+        if (lastMsg == undefined) lastMsg = 0;
     }
 
     if (now - (lastMsg || 0) > 1000) {
         if (targetNode) {
             this.lastRealtimeMessage[sourcePort][targetNode.id][targetPort] = now;
         } else {
-            this.lastRealtimeMessage[sourcePort] = now;
+            this.lastRealtimeMessage[sourcePort].time = now;
         }
         try {
             var realtimeMsg = {"message": {
