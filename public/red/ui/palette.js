@@ -26,7 +26,7 @@ RED.palette = function() {
                 d.type = nt;
                 
                 var label = def.name || /^(.*?)( in| out)?$/.exec(nt)[1]; // TODO: this is hardcoded
-                d.innerHTML = '<div class="palette_label">'+label+"</div>";
+                d.innerHTML = '<div class="palette_label"><p>'+label+"</p></div>";
                 d.className="palette_node";
                 if (def.icon) {
                     d.style.backgroundImage = "url(icons/"+def.icon+")";

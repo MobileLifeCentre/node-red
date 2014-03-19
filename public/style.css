@@ -268,8 +268,21 @@ a.brand img {
 .palette_label {
    line-height: 25px;
    text-align: center;
-
+  overflow: hidden;
+  width: 70px;
+  margin-left: 10px;
 }
+
+@-webkit-keyframes text-marquee
+{
+  from {-webkit-transform: translateX(0%); }
+  to {-webkit-transform: translateX(-50%); }
+}
+
+.palette_label:hover * { 
+  -webkit-animation: text-marquee 3s linear 1s infinite alternate;
+}
+
 .palette_node {
    cursor:move;
    font-size:13px;
@@ -504,7 +517,7 @@ a.brand img {
   transform: translateY(-20px) scale(1, 1);
 }
 
-.port_hovered, .port_selected {
+.port_hovered, .port_selected, .port_streaming {
   stroke: #fbc0a8;
   fill:  #fbc0a8;
 }
