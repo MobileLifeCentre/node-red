@@ -721,6 +721,19 @@ RED.view = function() {
         window.requestAnimationFrame(render);
     }
 
+    function checkPortExit(node) {
+        var inputPort = node.sourceNode._ports[0][node.sourcePort];
+            outputPort = node.targetNode._portsInput[0][node.targetPort];
+
+        var boxOutput = getAbsoluteBBox(node.sourceNode, inputPort.getBBox());
+        var boxInput = getAbsoluteBBox(node.targetNode, outputPort.getBBox());
+
+        if (!checkNodeOverlap(boxOutput, boxInput, 0)) {
+            d3.select(inputPort).classed("port_connecting", false);
+            d3.select(outputPort).classed("port_connecting", false);
+        }
+    }
+
     function checkPortOverlapping(node) {
         if (node.id == mousedown_node.id) return;
         // we detect if we are trying to connectio I -> O or O -> I
@@ -745,7 +758,39 @@ RED.view = function() {
                 var boxInput = getAbsoluteBBox(inputNode, inputPorts[j].getBBox());
 
                 if (checkNodeOverlap(boxOutput, boxInput, 0)) {
-                    connectNodePorts(outputNode, i, inputNode, j);
+                    d3.select(inputPorts[j]).classed("port_connecting", true);
+                    d3.select(outputPorts[i]).classed("port_connecting", true);
+                    var node = mousedown_node,
+                        sourceNode = outputNode,
+                        targetNode = inputNode,
+                        sourcePort = i,
+                        targetPort = j;
+
+                    mousedown_node.connectingPorts.push({
+                        sourceNode: sourceNode,
+                        targetNode: targetNode,
+                        sourcePort: sourcePort,
+                        targetPort: targetPort
+                    });
+                    if (mousedown_node.connectTimeout == undefined) {
+                        mousedown_node.connectTimeout = setTimeout(function() {
+                            var sPort = d3.select(sourceNode._ports[0][sourcePort]),
+                                tPort = d3.select(targetNode._portsInput[0][targetPort]);
+
+                            if (tPort.classed("port_connecting")) {
+                                connectNodePorts(sourceNode, sourcePort, targetNode, targetPort);
+                                sPort.classed("port_connected", true);
+                                tPort.classed("port_connected", true);
+                                setTimeout(function() {
+                                    sPort.classed("port_connected", false);
+                                    tPort.classed("port_connected", false);
+                                }, 100);
+                            }
+                            sPort.classed("port_connecting", false);
+                            tPort.classed("port_connecting", false);
+                            node.connectTimeout = undefined;
+                        }, 1000);
+                    }
                 }
             }
         }
@@ -813,6 +858,12 @@ RED.view = function() {
                     width = mousedown_node.w + 10,
                     height = mousedown_node.h + 10;
 
+                var connectingPorts = mousedown_node.connectingPorts;
+                for (var i in connectingPorts) {
+                    checkPortExit(connectingPorts[i]);
+                }
+                mousedown_node.connectingPorts = [];
+
                 var results = quadtree.search(x, y, width, height);
                 for (var i in results) {
                     checkPortOverlapping(results[i]);
@@ -838,7 +889,6 @@ RED.view = function() {
                 l = (typeof l === "function" ? l.call(d) : l)||"";
                 d.w = Math.max(node_width, calculateTextWidth(l)+(d.inputs > 0 ? 7:0) );
                 d.h = Math.max(node_height, Math.max((d.outputs||0), (d.inputs||0)) * 15);
-
 
                 var hoverRect = node.append("rect")
                     .attr("class", "hover_area")
@@ -989,7 +1039,6 @@ RED.view = function() {
                         d._ports.each(function(d, i) {
                             var port = d3.select(this);
 
-                            //quadtree.root.add(port);
                             port.attr("y",(y+13*i)-5).attr("x",x);
                         });
                     }

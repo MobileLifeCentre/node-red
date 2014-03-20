@@ -52,6 +52,29 @@
  .port_output_label {
    opacity: 0;
    -webkit-transition: opacity 1s;
+  pointer-events: none;
+ }
+
+ @-webkit-keyframes port_connecting
+  {
+  from {stroke-width: 0;}
+  to {stroke-width: 4;}
+  }
+
+ .port {
+  -webkit-transition: stroke-width 0.2s cubic-bezier(.42, 0, 1, 1);
+  stroke: #FF4C03;
+  stroke-width: 0;
+ }
+
+ .port_connecting {
+  -webkit-animation: port_connecting 0.4s cubic-bezier(.42, 0, 1, 1) 0.4s infinite alternate;
+ }
+
+ .port_connected {
+  stroke: rgb(0, 182, 182);
+  fill: rgb(0, 182, 182) !important;
+  stroke-width: 3;
  }
 
  .node_hovered ~ .port_input_label, 

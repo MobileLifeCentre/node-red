@@ -47,6 +47,7 @@ RED.nodes = function() {
         if (n._def.category == "config") {
             configNodes[n.id] = n;
         } else {
+            
             n.dirty = true;
             nodes.push(n);
         }
