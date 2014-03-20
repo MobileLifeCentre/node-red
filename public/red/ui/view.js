@@ -778,7 +778,7 @@ RED.view = function() {
                 return d.z == activeWorkspace 
             });
             var node = vis.selectAll(".nodegroup")
-                .data(workspaceNodes).attr("id", function(d){ return d.id });
+                .data(workspaceNodes, function(d){ return d.id });
             node.exit().remove();
 
             if (mouse_mode == RED.state.MOVING_ACTIVE) {
