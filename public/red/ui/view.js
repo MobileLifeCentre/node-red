@@ -760,6 +760,30 @@ RED.view = function() {
         return portBBox;
     }
 
+    function Quadtree(points){
+        points = points || [];
+        var p = points;
+        var rTree = new RTree();
+        p.forEach(function(v, i) {
+            rTree.insert(
+                {x: v.x, y:v.y,w:v.w,h:v.h}, v
+            );
+        });
+        this.add = function(pts){
+            p = p.concat(pts);
+
+            pts.forEach(function(v, i){
+
+                rTree.insert(
+                    {x: v.x, y:v.y,w:v.w,h:v.h}, v
+                );
+            });
+        };
+        this.search = function(x, y, width, height) {
+            return rTree.search({x:x, y:y,w:width,h:height});
+        };
+    }
+
     function checkNodeOverlap(nodeA, nodeB, margin) {
         return nodeA.x - margin < nodeB.x + nodeB.w + margin && nodeA.x + nodeA.w + margin > nodeB.x - margin &&
             nodeA.y < nodeB.y + nodeB.h && nodeA.y + nodeA.h > nodeB.y;
@@ -782,22 +806,17 @@ RED.view = function() {
             node.exit().remove();
 
             if (mouse_mode == RED.state.MOVING_ACTIVE) {
-                var quadtree = d3.geom.quadtree(workspaceNodes);
+                var quadtree = new Quadtree(workspaceNodes);
 
-                var x0 = mousedown_node.x - 10,
-                    y0 = mousedown_node.y - 10,
-                    x3 = x0 + mousedown_node.w + 10,
-                    y3 = y0 + mousedown_node.h + 10;
+                var x = mousedown_node.x - 10,
+                    y = mousedown_node.y - 10,
+                    width = mousedown_node.w + 10,
+                    height = mousedown_node.h + 10;
 
-                quadtree.visit(function(node, x1, y1, x2, y2) {
-                    var p = node.point;
-
-                    if (p && checkNodeOverlap(mousedown_node, p, 10)) {
-                      checkPortOverlapping(p);
-                    }
-
-                    return x1 >= x3 || y1 >= y3 || x2 < x0 || y2 < y0;
-                });
+                var results = quadtree.search(x, y, width, height);
+                for (var i in results) {
+                    checkPortOverlapping(results[i]);
+                }
             }
 
             var nodeEnter = node.enter()
