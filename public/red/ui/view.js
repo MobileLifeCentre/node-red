@@ -68,6 +68,7 @@ RED.view = function() {
 
     var drag_line = vis.append("svg:path").attr("class", "drag_line");
 
+    
     var workspace_tabs = RED.tabs.create({
         id: "workspace-tabs",
         onchange: function(id) {
@@ -605,21 +606,24 @@ RED.view = function() {
                 src_port = portIndex;
                 tgt_port = mousedown_port_index;
             }
-
-            var existingLink = false;
-            RED.nodes.eachLink(function(d) {
-                    existingLink = existingLink || 
-                        (d.source === src && d.target === dst && d.sourcePort == src_port && d.targetPort == tgt_port);
-            });
-            if (!existingLink) {
-                var link = {source: src, sourcePort:src_port, target: dst, targetPort: tgt_port};
-
-                RED.nodes.addLink(link);
-                RED.history.push({t:'add',links:[link],dirty:dirty});
-                setDirty(true);
-            }
+            connectNodePorts(src, src_port, dst, tgt_port);
             selected_link = null;
             redraw();
+        }
+    }
+
+    function connectNodePorts(src, src_port, dst, tgt_port) {
+        var existingLink = false;
+        RED.nodes.eachLink(function(d) {
+                existingLink = existingLink || 
+                    (d.source === src && d.target === dst && d.sourcePort == src_port && d.targetPort == tgt_port);
+        });
+        if (!existingLink) {
+            var link = {source: src, sourcePort:src_port, target: dst, targetPort: tgt_port};
+
+            RED.nodes.addLink(link);
+            RED.history.push({t:'add',links:[link],dirty:dirty});
+            setDirty(true);
         }
     }
 
@@ -714,6 +718,54 @@ RED.view = function() {
     }
 
     function redraw() {
+        window.requestAnimationFrame(render);
+    }
+
+    function checkPortOverlapping(node) {
+        if (node.id == mousedown_node.id) return;
+        // we detect if we are trying to connectio I -> O or O -> I
+        var outputNode,
+            inputNode;
+
+        if (node.x < mousedown_node.x) {
+            outputNode = node;
+            inputNode = mousedown_node;
+        } else {
+            inputNode = node;
+            outputNode = mousedown_node;
+        }
+
+        // TO-DO optimize this search
+        var outputPorts = outputNode._ports[0];
+            inputPorts = inputNode._portsInput[0];
+
+        for (var i = 0; i < outputPorts.length; ++i) {
+            var boxOutput = getAbsoluteBBox(outputNode, outputPorts[i].getBBox());
+            for (var j = 0; j < inputPorts.length; ++j) {
+                var boxInput = getAbsoluteBBox(inputNode, inputPorts[j].getBBox());
+
+                if (checkNodeOverlap(boxOutput, boxInput, 0)) {
+                    connectNodePorts(outputNode, i, inputNode, j);
+                }
+            }
+        }
+    }
+
+    function getAbsoluteBBox(node, portBBox) {
+        portBBox.w = portBBox.width;
+        portBBox.h = portBBox.height;
+        portBBox.x += node.x;
+        portBBox.y += node.y;
+
+        return portBBox;
+    }
+
+    function checkNodeOverlap(nodeA, nodeB, margin) {
+        return nodeA.x - margin < nodeB.x + nodeB.w + margin && nodeA.x + nodeA.w + margin > nodeB.x - margin &&
+            nodeA.y < nodeB.y + nodeB.h && nodeA.y + nodeA.h > nodeB.y;
+    }
+
+    function render() {
         vis.attr("transform","scale("+scaleFactor+")");
         outer.attr("width", space_width*scaleFactor).attr("height", space_height*scaleFactor);
         outer_background.attr('fill', function() {
@@ -722,12 +774,31 @@ RED.view = function() {
 
         if (mouse_mode != RED.state.JOINING) {
             // Don't bother redrawing nodes if we're drawing links
+            var workspaceNodes = RED.nodes.nodes.filter(function(d) { 
+                return d.z == activeWorkspace 
+            });
             var node = vis.selectAll(".nodegroup")
-                .data(RED.nodes.nodes.filter(function(d) { 
-                    return d.z == activeWorkspace 
-                }), function(d){ return d.id });
-
+                .data(workspaceNodes).attr("id", function(d){ return d.id });
             node.exit().remove();
+
+            if (mouse_mode == RED.state.MOVING_ACTIVE) {
+                var quadtree = d3.geom.quadtree(workspaceNodes);
+
+                var x0 = mousedown_node.x - 10,
+                    y0 = mousedown_node.y - 10,
+                    x3 = x0 + mousedown_node.w + 10,
+                    y3 = y0 + mousedown_node.h + 10;
+
+                quadtree.visit(function(node, x1, y1, x2, y2) {
+                    var p = node.point;
+
+                    if (p && checkNodeOverlap(mousedown_node, p, 10)) {
+                      checkPortOverlapping(p);
+                    }
+
+                    return x1 >= x3 || y1 >= y3 || x2 < x0 || y2 < y0;
+                });
+            }
 
             var nodeEnter = node.enter()
                 .insert("svg:g")
@@ -800,10 +871,9 @@ RED.view = function() {
                         .on("touchstart",nodeButtonClicked)
                 }
 
-
                 var mainRect = node.append("rect")
                     .attr("class", "node")
-                    .classed("node_unknown",function(d) { return d.type == "unknown"; })
+                    .classed("node_unknown", function(d) { return d.type == "unknown"; })
                     .attr("fill",function(d) { return d._def.color;})
                     .on("mousedown",nodeMouseDown)
                     .on("touchstart",nodeMouseDown)
@@ -819,8 +889,8 @@ RED.view = function() {
                         return false;
                     });
 
-                mainRect.on("mouseup",nodeMouseUp);
-                mainRect.on("touchend",function(){ clearTimeout(pressTimer); nodeMouseUp; });
+                mainRect.on("mouseup", nodeMouseUp);
+                mainRect.on("touchend", function(){ clearTimeout(pressTimer); nodeMouseUp; });
 
                 if (d._def.icon) {
                     var icon = node.append("image")
@@ -859,10 +929,10 @@ RED.view = function() {
                     var thisNode = d3.select(this);
                     thisNode.attr("transform", function(d) { return "translate(" + (d.x-d.w/2) + "," + (d.y-d.h/2) + ")"; });
                     thisNode.selectAll(".node")
-                        .attr("width",function(d){return d.w})
-                        .attr("height",function(d){return d.h})
-                        .classed("node_selected",function(d) { return d.selected; })
-                        .classed("node_highlighted",function(d) { return d.highlighted; })
+                        .attr("width", function(d){return d.w})
+                        .attr("height", function(d){return d.h})
+                        .classed("node_selected", function(d) { return d.selected; })
+                        .classed("node_highlighted", function(d) { return d.highlighted; })
                     ;
 
                     var extraArea = 10,
@@ -882,6 +952,7 @@ RED.view = function() {
                     var y = (d.h/2)-((numOutputs-1)/2)*13;
                     d.ports = d.ports || d3.range(numOutputs);
                     d._ports = thisNode.selectAll(".port_output").data(d.ports);
+
                     d._ports.enter().append("rect").attr("class","port port_output").attr("width",10).attr("height",10).attr("rx", 10)
                         .on("mousedown",function(){var node = d; return function(d,i){portMouseDown(node,0,i);}}() )
                         .on("touchstart",function(){var node = d; return function(d,i){portMouseDown(node,0,i);}}() )
@@ -890,13 +961,17 @@ RED.view = function() {
                         .on("mouseover",function(d,i) { var port = d3.select(this); port.classed("port_hovered",(mouse_mode!=RED.state.JOINING || mousedown_port_type != 0 ));})
                         .on("mouseout",function(d,i) { var port = d3.select(this); port.classed("port_hovered",false);});
                     d._ports.exit().remove();
+
                     if (d._ports) {
                         var numOutputs = d.outputs || 1;
                         var y = (d.h/2)-((numOutputs-1)/2)*13;
                         var x = d.w - 5;
+
                         d._ports.each(function(d, i) {
-                                var port = d3.select(this);
-                                port.attr("y",(y+13*i)-5).attr("x",x);
+                            var port = d3.select(this);
+
+                            //quadtree.root.add(port);
+                            port.attr("y",(y+13*i)-5).attr("x",x);
                         });
                     }
 
@@ -999,6 +1074,7 @@ RED.view = function() {
                                     .text(d._def.inputLabels[i].name);
                         });
                     }
+
 
 
 
