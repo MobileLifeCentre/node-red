@@ -729,6 +729,8 @@ RED.view = function() {
         var boxInput = getAbsoluteBBox(node.targetNode, outputPort.getBBox());
 
         if (!checkNodeOverlap(boxOutput, boxInput, 0)) {
+            clearTimeout(mousedown_node.connectTimeout);
+            mousedown_node.connectTimeout = undefined;
             d3.select(inputPort).classed("port_connecting", false);
             d3.select(outputPort).classed("port_connecting", false);
         }

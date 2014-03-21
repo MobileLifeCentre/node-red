@@ -142,6 +142,7 @@ body {
 .navbar-inner .container-fluid {
   background-color: rgba(0, 182, 182, 0.7);
   padding: 5px 10px 5px 10px;
+  height: 40px;
 } 
 #dropTarget {
     position: absolute;
