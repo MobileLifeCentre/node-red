@@ -134,6 +134,10 @@
     opacity: 1;
  }
 
+ .node_moving, .node_moving * {
+  pointer-events: none;
+ }
+
 .btn {
   border: 0px;
 }
@@ -627,6 +631,10 @@ a.brand img {
   stroke-width: 4;
   cursor: crosshair;
   fill: none;
+}
+
+.link:hover, .link_hovered {
+  stroke-width: 6;
 }
 
 .link_selected {

@@ -36,6 +36,7 @@ RED.view = function() {
         mouse_position = null,
         mouse_mode = 0,
         moving_set = [],
+        link_hovered = null, 
         dirty = false,
         lasso = null,
         active_group = null;
@@ -275,6 +276,7 @@ RED.view = function() {
             var minY = 0;
             for (var n in moving_set) {
                 var node = moving_set[n];
+                d3.select("#node" + node.n.id.replace(".","")).classed("node_moving", true);
                 node.n.x = mousePos[0]+node.dx;
                 node.n.y = mousePos[1]+node.dy;
                 if (d3.event.shiftKey && moving_set.length == 1) {
@@ -327,7 +329,19 @@ RED.view = function() {
             if (moving_set.length > 0) {
                 var ns = [];
                 for (var i in moving_set) {
-                    ns.push({n:moving_set[i].n,ox:moving_set[i].ox,oy:moving_set[i].oy});
+                    // We check if use is leaving the node in a link
+                    if (link_hovered) {
+                        var linkData = d3.select(link_hovered)[0][0].__data__;
+                        if (connectNodePorts(linkData.source, parseInt(linkData.sourcePort), mousedown_node, 0)
+                            && connectNodePorts(mousedown_node, 0, linkData.target, 0)) {
+                            disconnectNodePorts(linkData.source, linkData.sourcePort, linkData.target, linkData.targetPort);
+                        }
+                        
+                        link_hovered = null;
+                    }
+                    var node = moving_set[i];
+                    d3.select("#node" + node.n.id.replace(".","")).classed("node_moving", false);
+                    ns.push({n:node.n, ox:node.ox, oy:node.oy});
                 }
                 RED.history.push({t:'move',nodes:ns,dirty:dirty});
             }
@@ -446,6 +460,7 @@ RED.view = function() {
             n.n.selected = false;
         }
         moving_set = [];
+        hovering_link = null;
         selected_link = null;
     }
 
@@ -613,17 +628,46 @@ RED.view = function() {
     }
 
     function connectNodePorts(src, src_port, dst, tgt_port) {
-        var existingLink = false;
-        RED.nodes.eachLink(function(d) {
-                existingLink = existingLink || 
-                    (d.source === src && d.target === dst && d.sourcePort == src_port && d.targetPort == tgt_port);
-        });
-        if (!existingLink) {
-            var link = {source: src, sourcePort:src_port, target: dst, targetPort: tgt_port};
+        try {
+            var existingLink = false;
+            RED.nodes.eachLink(function(d) {
+                    existingLink = existingLink || 
+                        (d.source === src && d.target === dst && d.sourcePort == src_port && d.targetPort == tgt_port);
+            });
+            if (!existingLink) {
+                var link = {source: src, sourcePort:src_port, target: dst, targetPort: tgt_port};
 
-            RED.nodes.addLink(link);
-            RED.history.push({t:'add',links:[link],dirty:dirty});
-            setDirty(true);
+                RED.nodes.addLink(link);
+                RED.history.push({t:'add',links:[link],dirty:dirty});
+                setDirty(true);
+            }
+
+            return !existingLink;
+        } catch (error) {
+            return false;
+        }
+    }
+
+    function disconnectNodePorts(src, src_port, dst, tgt_port) {
+        try {
+            var existingLink = false;
+            RED.nodes.eachLink(function(d) {
+                if (d.source === src && d.target === dst && d.sourcePort == src_port && d.targetPort == tgt_port) {
+                    existingLink = d;
+                }
+            });
+            if (existingLink) {
+                var link = {source: src, sourcePort:src_port, target: dst, targetPort: tgt_port};
+
+                RED.nodes.removeLink(existingLink);
+                RED.history.push({t:'delete', links:[link], dirty:true});
+                setDirty(true);
+            }
+
+            return existingLink;
+        } catch (error) {
+            console.log("error");
+            return false;
         }
     }
 
@@ -1158,9 +1202,6 @@ RED.view = function() {
                         });
                     }
 
-
-
-
                     thisNode.selectAll(".node_icon").attr("height",function(d){return Math.min(50,d.h);}).attr("y",function(d){return (d.h-Math.min(50,d.h))/2;});
 
                     thisNode.selectAll('.node_right_button').attr("transform",function(d){
@@ -1195,7 +1236,8 @@ RED.view = function() {
         }
 
         var link = vis.selectAll(".link").data(RED.nodes.links.filter(function(d) { 
-            return d.source.z == activeWorkspace && d.target.z == activeWorkspace }));
+            return d.source.z == activeWorkspace && d.target.z == activeWorkspace })
+        );
 
         link.enter().insert("svg:path",".node").attr("class","link")
            .on("mousedown",function(d) {
@@ -1214,6 +1256,14 @@ RED.view = function() {
                 redraw();
                 d3.event.stopPropagation();
                 pressTimer = setTimeout(function() { deleteSelection(); }, 1500);
+            })
+            .on("mouseover", function() {
+                link_hovered = this;
+                d3.select(this).classed("link_hovered", true);
+            })
+            .on("mouseout", function() {
+                link_hovered = null;
+                d3.select(this).classed("link_hovered", false);
             })
             .on("touchend",function() { clearTimeout(pressTimer); });
 
