@@ -17,33 +17,41 @@
   font-family: 'Quicksand';
   font-style: normal;
   font-weight: 300;
-  src: local('Quicksand Light'), local('Quicksand-Light'), url(/fonts/Quicksand-Light.ttf) format('ttf');
+  src: url(../fonts/Quicksand-Light.woff) format('woff');
 }
 @font-face {
   font-family: 'Quicksand';
   font-style: normal;
   font-weight: 400;
-  src: local('Quicksand Regular'), local('Quicksand-Regular'), url(/fonts/Quicksand-Regular.ttf) format('ttf');
+  src:  url(../fonts/Quicksand-Regular.woff) format('woff');
 }
 @font-face {
   font-family: 'Quicksand';
   font-style: normal;
   font-weight: 700;
-  src: local('Quicksand Bold'), local('Quicksand-Bold'), url(/fonts/Quicksand-Bold.ttf) format('ttf');
+  src: url(../fonts/Quicksand-Bold.woff) format('woff');
 }
 
 @font-face {
   font-family: 'Oswald';
   font-style: normal;
+  font-weight: 300;
+  src:  url(../fonts/Oswald-Light.woff) format('woff');
+}
+
+
+@font-face {
+  font-family: 'Oswald';
+  font-style: normal;
   font-weight: 400;
-  src: local('Oswald Regular'), local('Oswald-Regular'), url(fonts/Oswald-Regular.ttf) format('ttf');
+  src:  url(../fonts/Oswald-Regular.woff) format('woff');
 }
 
 @font-face {
   font-family: 'Oswald';
   font-style: normal;
   font-weight: 700;
-  src: local('Oswald Bold'), local('Oswald-Bold'), url(fonts/Oswald-Bold.ttf) format('ttf');
+  src:  url(../fonts/Oswald-Bold.woff) format('woff');
 }
 
 
@@ -86,6 +94,12 @@
    opacity: 0;
    -webkit-transition: opacity 1s;
   pointer-events: none;
+    webkit-touch-callout: none;
+  -webkit-user-select: none;
+  -khtml-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
  }
 
  @-webkit-keyframes port_connecting
