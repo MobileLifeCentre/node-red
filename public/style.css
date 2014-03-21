@@ -13,6 +13,39 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  **/
+@font-face {
+  font-family: 'Quicksand';
+  font-style: normal;
+  font-weight: 300;
+  src: local('Quicksand Light'), local('Quicksand-Light'), url(/fonts/Quicksand-Light.ttf) format('ttf');
+}
+@font-face {
+  font-family: 'Quicksand';
+  font-style: normal;
+  font-weight: 400;
+  src: local('Quicksand Regular'), local('Quicksand-Regular'), url(/fonts/Quicksand-Regular.ttf) format('ttf');
+}
+@font-face {
+  font-family: 'Quicksand';
+  font-style: normal;
+  font-weight: 700;
+  src: local('Quicksand Bold'), local('Quicksand-Bold'), url(/fonts/Quicksand-Bold.ttf) format('ttf');
+}
+
+@font-face {
+  font-family: 'Oswald';
+  font-style: normal;
+  font-weight: 400;
+  src: local('Oswald Regular'), local('Oswald-Regular'), url(fonts/Oswald-Regular.ttf) format('ttf');
+}
+
+@font-face {
+  font-family: 'Oswald';
+  font-style: normal;
+  font-weight: 700;
+  src: local('Oswald Bold'), local('Oswald-Bold'), url(fonts/Oswald-Bold.ttf) format('ttf');
+}
+
 
 
  .insbits-logo {
@@ -144,6 +177,10 @@ body {
   padding: 5px 10px 5px 10px;
   height: 40px;
 } 
+.navbar-inner {
+  display: inline;
+}
+
 #dropTarget {
     position: absolute;
     top: 0; bottom: 0;

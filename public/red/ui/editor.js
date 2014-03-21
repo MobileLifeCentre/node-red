@@ -32,7 +32,6 @@ RED.editor = function() {
             for (var d in node._def.defaults) {
                 var def = node._def.defaults[d];
                 var input = $("#node-input-"+d);
-                console.log(d);
                 var node_def = RED.nodes.getType(def.type);
                 
                 if (node_def && node_def.category == "config") {

@@ -729,8 +729,13 @@ RED.view = function() {
         var boxInput = getAbsoluteBBox(node.targetNode, outputPort.getBBox());
 
         if (!checkNodeOverlap(boxOutput, boxInput, 0)) {
-            clearTimeout(mousedown_node.connectTimeout);
-            mousedown_node.connectTimeout = undefined;
+            var timeoutId = node.node.id + (node.node == node.sourceNode? node.sourcePort : node.targetPort);
+            var timeout = mousedown_node.connectTimeout[timeoutId];
+            if (timeout) {
+                clearTimeout(timeout);
+                mousedown_node.connectTimeout[timeoutId] = undefined;
+            }
+            
             d3.select(inputPort).classed("port_connecting", false);
             d3.select(outputPort).classed("port_connecting", false);
         }
@@ -762,20 +767,27 @@ RED.view = function() {
                 if (checkNodeOverlap(boxOutput, boxInput, 0)) {
                     d3.select(inputPorts[j]).classed("port_connecting", true);
                     d3.select(outputPorts[i]).classed("port_connecting", true);
-                    var node = mousedown_node,
-                        sourceNode = outputNode,
-                        targetNode = inputNode,
-                        sourcePort = i,
-                        targetPort = j;
+                    var timeoutPortObject = {
+                        mousedownNode: mousedown_node,
+                        sourceNode: outputNode,
+                        targetNode: inputNode,
+                        sourcePort: i,
+                        targetPort: j,
+                        node: node
+                    };
 
-                    mousedown_node.connectingPorts.push({
-                        sourceNode: sourceNode,
-                        targetNode: targetNode,
-                        sourcePort: sourcePort,
-                        targetPort: targetPort
-                    });
-                    if (mousedown_node.connectTimeout == undefined) {
-                        mousedown_node.connectTimeout = setTimeout(function() {
+                    mousedown_node.connectingPorts.push(timeoutPortObject);
+                    mousedown_node.connectTimeout = mousedown_node.connectTimeout || [];
+
+                    var timeoutId = node.id + (node == outputNode? i : j);
+                    if (mousedown_node.connectTimeout[timeoutId] == undefined) {
+                        mousedown_node.connectTimeout[timeoutId] = setTimeout(function(timeoutPortObject) {
+                            var sourceNode = timeoutPortObject.sourceNode,
+                                targetNode = timeoutPortObject.targetNode,
+                                sourcePort = timeoutPortObject.sourcePort,
+                                targetPort = timeoutPortObject.targetPort,
+                                mousedownNode = timeoutPortObject.mousedownNode;
+
                             var sPort = d3.select(sourceNode._ports[0][sourcePort]),
                                 tPort = d3.select(targetNode._portsInput[0][targetPort]);
 
@@ -783,15 +795,16 @@ RED.view = function() {
                                 connectNodePorts(sourceNode, sourcePort, targetNode, targetPort);
                                 sPort.classed("port_connected", true);
                                 tPort.classed("port_connected", true);
-                                setTimeout(function() {
-                                    sPort.classed("port_connected", false);
-                                    tPort.classed("port_connected", false);
-                                }, 100);
+                                setTimeout(function(ports) {
+                                    ports.sPort.classed("port_connected", false);
+                                    ports.tPort.classed("port_connected", false);
+                                }, 100, {sPort: sPort, tPort: tPort});
                             }
                             sPort.classed("port_connecting", false);
                             tPort.classed("port_connecting", false);
-                            node.connectTimeout = undefined;
-                        }, 1000);
+                            var timeout = mousedownNode.connectTimeout[timeoutId];
+                            if (timeout) mousedownNode.connectTimeout[timeoutId] = undefined;
+                        }, 1000, timeoutPortObject);
                     }
                 }
             }
