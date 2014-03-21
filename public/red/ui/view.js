@@ -332,7 +332,9 @@ RED.view = function() {
                     // We check if use is leaving the node in a link
                     if (link_hovered) {
                         var linkData = d3.select(link_hovered)[0][0].__data__;
-                        if (connectNodePorts(linkData.source, parseInt(linkData.sourcePort), mousedown_node, 0)
+                        console.log(mousedown_node);
+                        if (parseInt(mousedown_node.inputs) > 0 && parseInt(mousedown_node.outputs) > 0
+                            && connectNodePorts(linkData.source, parseInt(linkData.sourcePort), mousedown_node, 0)
                             && connectNodePorts(mousedown_node, 0, linkData.target, 0)) {
                             disconnectNodePorts(linkData.source, linkData.sourcePort, linkData.target, linkData.targetPort);
                         }
