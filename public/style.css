@@ -643,10 +643,11 @@ a.brand img {
 }
 
 .link_destroying {
-  opacity: .2 !important;
+  opacity: .2;
 }
 .link_selected:hover {
   cursor: pointer;
+  opacity: 1 !important;
 }
 .link_unknown {
    stroke: #f00;

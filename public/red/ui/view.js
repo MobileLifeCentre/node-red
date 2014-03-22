@@ -308,6 +308,12 @@ RED.view = function() {
             // mark port as unselected
             setPortSelection(false);
         }
+
+        if (selected_link == mousedown_link && !link_hovered) {
+            RED.nodes.removeLink(selected_link);
+            RED.history.push({t:'delete', links:[selected_link], dirty:true});
+        }
+
         if (lasso) {
             var x = parseInt(lasso.attr("x"));
             var y = parseInt(lasso.attr("y"));
@@ -359,11 +365,6 @@ RED.view = function() {
                 }
                 node.n.dirty = true;
             }
-        }
-
-        if (selected_link == mousedown_link && !link_hovered) {
-            RED.nodes.removeLink(selected_link);
-            RED.history.push({t:'delete', links:[selected_link], dirty:true});
         }
 
         redraw();
@@ -1276,15 +1277,9 @@ RED.view = function() {
             })
             .on("mouseover", function(d) {
                 link_hovered = d;
-                d3.select(this)
-                    .classed("link_hovered", true)
-                    .classed("link_destroying", false);
             })
             .on("mouseout", function(d) {
                 link_hovered = null;
-                d3.select(this)
-                    .classed("link_hovered", false)
-                    .classed("link_destroying", selected_link == mousedown_link && mousedown_link == d);
             })
             .on("touchend",function() { clearTimeout(pressTimer); });
 
@@ -1327,8 +1322,10 @@ RED.view = function() {
         })
 
         link.classed("link_selected", function(d) { return d === selected_link || d.selected; });
-        link.classed("link_unknown",function(d) { return d.target.type == "unknown" || d.source.type == "unknown"});
-        
+        link.classed("link_unknown", function(d) { return d.target.type == "unknown" || d.source.type == "unknown"});
+        link.classed("link_hovering", function(d) { return d == link_hovered; });
+        link.classed("link_destroying", function(d) { return selected_link == mousedown_link && mousedown_link == d; });
+
         if (d3.event) {
             d3.event.preventDefault();
         }
