@@ -225,7 +225,11 @@ RED.view = function() {
             return;
         }
 
-        if (mouse_mode != RED.state.IMPORT_DRAGGING && !mousedown_node && selected_link == null) return;
+
+
+        if (mouse_mode != RED.state.IMPORT_DRAGGING && !mousedown_node && selected_link == null) {
+            return;
+        } 
 
         if (mouse_mode == RED.state.JOINING) {
             // update drag line
@@ -330,17 +334,7 @@ RED.view = function() {
                 var ns = [];
                 for (var i in moving_set) {
                     // We check if use is leaving the node in a link
-                    if (link_hovered) {
-                        var linkData = d3.select(link_hovered)[0][0].__data__;
-                        console.log(mousedown_node);
-                        if (parseInt(mousedown_node.inputs) > 0 && parseInt(mousedown_node.outputs) > 0
-                            && connectNodePorts(linkData.source, parseInt(linkData.sourcePort), mousedown_node, 0)
-                            && connectNodePorts(mousedown_node, 0, linkData.target, 0)) {
-                            disconnectNodePorts(linkData.source, linkData.sourcePort, linkData.target, linkData.targetPort);
-                        }
-                        
-                        link_hovered = null;
-                    }
+                    if (link_hovered) dropNodeInLink(mousedown_node);
                     var node = moving_set[i];
                     d3.select("#node" + node.n.id.replace(".","")).classed("node_moving", false);
                     ns.push({n:node.n, ox:node.ox, oy:node.oy});
@@ -366,6 +360,12 @@ RED.view = function() {
                 node.n.dirty = true;
             }
         }
+
+        if (selected_link == mousedown_link && !link_hovered) {
+            RED.nodes.removeLink(selected_link);
+            RED.history.push({t:'delete', links:[selected_link], dirty:true});
+        }
+
         redraw();
         // clear mouse event vars
         resetMouseVars();
@@ -384,43 +384,47 @@ RED.view = function() {
             }
     });
     $("#chart").droppable({
-            accept:".palette_node",
-            drop: function( event, ui ) {
-                d3.event = event;
-                var selected_tool = ui.draggable[0].type;
-                var mousePos = d3.touches(this)[0]||d3.mouse(this);
-                mousePos[1] += this.scrollTop;
-                mousePos[0] += this.scrollLeft;
-                mousePos[1] /= scaleFactor;
-                mousePos[0] /= scaleFactor;
+        accept:".palette_node",
+        drop: function( event, ui ) {
+            d3.event = event;
+            var selected_tool = ui.draggable[0].type;
+            var mousePos = d3.touches(this)[0]||d3.mouse(this);
+            mousePos[1] += this.scrollTop;
+            mousePos[0] += this.scrollLeft;
+            mousePos[1] /= scaleFactor;
+            mousePos[0] /= scaleFactor;
 
-                var nn = { id:(1+Math.random()*4294967295).toString(16),x: mousePos[0],y:mousePos[1],w:node_width,z:activeWorkspace};
+            var nn = { id:(1+Math.random()*4294967295).toString(16),x: mousePos[0],y:mousePos[1],w:node_width,z:activeWorkspace};
 
-                nn.type = selected_tool;
-                nn._def = RED.nodes.getType(nn.type);
-                nn.outputs = nn._def.outputs;
-                nn.inputs = nn._def.inputs;
-                nn.changed = true;
-                nn.h = Math.max(node_height,(nn.outputs||0) * 15);
+            nn.type = selected_tool;
+            nn._def = RED.nodes.getType(nn.type);
+            nn.outputs = nn._def.outputs;
+            nn.inputs = nn._def.inputs;
+            nn.changed = true;
+            nn.h = Math.max(node_height,(nn.outputs||0) * 15);
 
-                for (var d in nn._def.defaults) {
-                    nn[d] = nn._def.defaults[d].value;
-                }
-                RED.history.push({t:'add',nodes:[nn.id],dirty:dirty});
-                RED.nodes.add(nn);
-                RED.editor.validateNode(nn);
-                setDirty(true);
-                // auto select dropped node - so info shows (if visible)
-                clearSelection();
-                nn.selected = true;
-                moving_set.push({n:nn});
-                updateSelection();
-                redraw();
-
-                if (nn._def.autoedit) {
-                    RED.editor.edit(nn);
-                }
+            for (var d in nn._def.defaults) {
+                nn[d] = nn._def.defaults[d].value;
             }
+            RED.history.push({t:'add',nodes:[nn.id],dirty:dirty});
+            RED.nodes.add(nn);
+            RED.editor.validateNode(nn);
+            setDirty(true);
+            // auto select dropped node - so info shows (if visible)
+            clearSelection();
+            nn.selected = true;
+            moving_set.push({n:nn});
+            updateSelection();
+            redraw();
+
+            if (link_hovered) {
+                dropNodeInLink(nn);
+            }
+
+            if (nn._def.autoedit) {
+                RED.editor.edit(nn);
+            }
+        }
     });
 
     function zoomIn() {
@@ -584,7 +588,7 @@ RED.view = function() {
             labels = mousedown_node._portsInputs_labels;
         }
         if (ports) d3.select(ports[0][mousedown_port_index]).classed("port_selected", selected);
-        if (labels)d3.select(labels[0][mousedown_port_index]).classed("label_selected", selected);
+        if (labels) d3.select(labels[0][mousedown_port_index]).classed("label_selected", selected);
     }
 
     function portMouseDown(d, portType, portIndex) {
@@ -629,7 +633,18 @@ RED.view = function() {
         }
     }
 
+    function dropNodeInLink(node) {
+        if (parseInt(node.inputs) > 0 && parseInt(node.outputs) > 0
+            && connectNodePorts(link_hovered.source, parseInt(link_hovered.sourcePort), node, 0)
+            && connectNodePorts(node, 0, link_hovered.target, 0)) {
+            disconnectNodePorts(link_hovered.source, link_hovered.sourcePort, link_hovered.target, link_hovered.targetPort);
+        }
+        
+        link_hovered = null;
+    }
+
     function connectNodePorts(src, src_port, dst, tgt_port) {
+        if (src == dst) return false;
         try {
             var existingLink = false;
             RED.nodes.eachLink(function(d) {
@@ -1259,13 +1274,17 @@ RED.view = function() {
                 d3.event.stopPropagation();
                 pressTimer = setTimeout(function() { deleteSelection(); }, 1500);
             })
-            .on("mouseover", function() {
-                link_hovered = this;
-                d3.select(this).classed("link_hovered", true);
+            .on("mouseover", function(d) {
+                link_hovered = d;
+                d3.select(this)
+                    .classed("link_hovered", true)
+                    .classed("link_destroying", false);
             })
-            .on("mouseout", function() {
+            .on("mouseout", function(d) {
                 link_hovered = null;
-                d3.select(this).classed("link_hovered", false);
+                d3.select(this)
+                    .classed("link_hovered", false)
+                    .classed("link_destroying", selected_link == mousedown_link && mousedown_link == d);
             })
             .on("touchend",function() { clearTimeout(pressTimer); });
 

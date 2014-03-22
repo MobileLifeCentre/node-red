@@ -20,7 +20,7 @@ var RED = function() {
     
     $('#chart').on("dragenter",function(event) {
         if ($.inArray("text/plain",event.originalEvent.dataTransfer.types) != -1) {
-            $("#dropTarget").css({display:'table'});
+            //$("#dropTarget").css({display:'table'});
         }
     });
     

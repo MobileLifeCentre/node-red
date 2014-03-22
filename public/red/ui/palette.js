@@ -21,7 +21,8 @@ RED.palette = function() {
             if (nodeDOM) {
                 
             } else {
-                var d = document.createElement("div");
+                var d = document.createElement("div"),
+                    $d = $(d);
                 d.id = "pn_"+nt;
                 d.type = nt;
                 
@@ -78,20 +79,20 @@ RED.palette = function() {
                         n.classed("node_highlighted", false);
                     });
                 }
-                $(d).popover({
-                        title:d.type,
-                        placement:"right",
-                        trigger: "hover",
-                        delay: { show: 750, hide: 50 },
-                        html: true,
-                        container:'body',
-                        content: $(($("script[data-help-name|='"+nt+"']").html()||"<p>no information available</p>").trim())[0] 
+                $d.popover({
+                    title:d.type,
+                    placement:"right",
+                    trigger: "hover",
+                    delay: { show: 750, hide: 50 },
+                    html: true,
+                    container:'body',
+                    content: $(($("script[data-help-name|='"+nt+"']").html()||"<p>no information available</p>").trim())[0] 
                 });
-                $(d).click(function() {
-                        var help = '<div class="node-help">'+($("script[data-help-name|='"+d.type+"']").html()||"")+"</div>";
-                        $("#tab-info").html(help);
+                $d.click(function() {
+                    var help = '<div class="node-help">'+($("script[data-help-name|='"+d.type+"']").html()||"")+"</div>";
+                    $("#tab-info").html(help);
                 });
-                $(d).draggable({
+                $d.draggable({
                     helper: 'clone',
                     appendTo: 'body',
                     revert: true,
@@ -103,7 +104,6 @@ RED.palette = function() {
             $("."+cleanType(d.type)).css("opacity", "1");
         }
     }
-
 
     function getNodeElement(type) {
         var id = "pn_" + type;
@@ -122,11 +122,11 @@ RED.palette = function() {
         return type.replace(/[\.\:\>\<]/g, "");
     }
     
-    $(".palette-header").click(
-        function(e) {
-            $(this).next().slideToggle();
-            $(this).children("i").toggleClass("expanded");
-        });
+    $(".palette-header").click(function(e) {
+        var $this = $(this);
+        $this.next().slideToggle();
+        $this.children("i").toggleClass("expanded");
+    });
 
     
     return {

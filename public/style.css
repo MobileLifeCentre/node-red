@@ -369,6 +369,7 @@ a.brand img {
 }
 
 .palette_node {
+
    cursor:move;
    font-size:13px;
    background: #ddd;
@@ -640,6 +641,13 @@ a.brand img {
 .link_selected {
   stroke: #ff7f0e;
 }
+
+.link_destroying {
+  opacity: .2 !important;
+}
+.link_selected:hover {
+  cursor: pointer;
+}
 .link_unknown {
    stroke: #f00;
    stroke-width: 2;
@@ -729,6 +737,9 @@ button.input-append-right {
 
 .ui-tabs .ui-tabs-panel {
     padding: 0px;
+}
+.ui-draggable-dragging {
+  pointer-events: none;
 }
 
 table.node-info {
