@@ -465,6 +465,8 @@ a.brand img {
     stroke-dasharray: 10 5;
 }
 
+
+
 .group-box {
     stroke: #aaaaaa;
     fill: rgba(208, 211, 238, 0.1);
@@ -614,10 +616,14 @@ a.brand img {
 }
 
 .drag_line {
-  stroke: #ff7f0e;
+  stroke: #fbc0a8;
   stroke-width: 5;
   fill: none;
   pointer-events: none;
+}
+
+.drag_line.connected {
+  stroke: #FF4C03;
 }
 
 .drag_line_hidden {

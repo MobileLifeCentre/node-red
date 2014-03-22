@@ -36,6 +36,7 @@ RED.view = function() {
         mouse_position = null,
         mouse_mode = 0,
         moving_set = [],
+        mouseover_port = null,
         link_hovered = null, 
         dirty = false,
         lasso = null,
@@ -233,7 +234,8 @@ RED.view = function() {
 
         if (mouse_mode == RED.state.JOINING) {
             // update drag line
-            drag_line.attr("class", "drag_line");
+            drag_line.attr("class", "drag_line")
+                .classed("connected", mouseover_port != null);
             var mousePos = mouse_position;
             var numOutputs = (mousedown_port_type == 0)?(mousedown_node.outputs || 1): (mousedown_node.inputs || 1);
             var sourcePort = mousedown_port_index;
@@ -1104,8 +1106,16 @@ RED.view = function() {
                         .on("touchstart",function(){var node = d; return function(d,i){portMouseDown(node,0,i);}}() )
                         .on("mouseup",function(){var node = d; return function(d,i){portMouseUp(node,0,i);}}() )
                         .on("touchend",function(){var node = d; return function(d,i){portMouseUp(node,0,i);}}() )
-                        .on("mouseover",function(d,i) { var port = d3.select(this); port.classed("port_hovered",(mouse_mode!=RED.state.JOINING || mousedown_port_type != 0 ));})
-                        .on("mouseout",function(d,i) { var port = d3.select(this); port.classed("port_hovered",false);});
+                        .on("mouseover",function(d,i) { 
+                            var port = d3.select(this); 
+                            mouseover_port = d;
+                            port.classed("port_hovered",(mouse_mode!=RED.state.JOINING || mousedown_port_type != 0 ));
+                        })
+                        .on("mouseout",function(d,i) { 
+                            var port = d3.select(this); 
+                            mouseover_port = null;
+                            port.classed("port_hovered",false);
+                        });
                     d._ports.exit().remove();
 
                     if (d._ports) {
@@ -1181,8 +1191,16 @@ RED.view = function() {
                         .on("touchstart",function(){var node = d; return function(d,i){portMouseDown(node,1,i);}}() )
                         .on("mouseup",function(){var node = d; return function(d,i){portMouseUp(node,1,i);}}() )
                         .on("touchend",function(){var node = d; return function(d,i){portMouseUp(node,1,i);}}() )
-                        .on("mouseover",function(d,i) { var port = d3.select(this); port.classed("port_hovered",(mouse_mode!=RED.state.JOINING || mousedown_port_type != 1 ));})
-                        .on("mouseout",function(d,i) { var port = d3.select(this); port.classed("port_hovered",false);});
+                        .on("mouseover", function(d, i) { 
+                            var port = d3.select(this); 
+                            mouseover_port = d;
+                            port.classed("port_hovered",(mouse_mode!=RED.state.JOINING || mousedown_port_type != 1 ));
+                        })
+                        .on("mouseout", function(d, i) { 
+                            var port = d3.select(this); 
+                            mouseover_port = null;
+                            port.classed("port_hovered",false);
+                        });
                     d._portsInput.exit().remove();
                     
                     if (d._portsInput) {
