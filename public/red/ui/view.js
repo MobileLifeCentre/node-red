@@ -1223,7 +1223,8 @@ RED.view = function() {
                         d._portsInputs_labels.enter()
                             .append("text")
                             .attr("class", "port_input_label")
-                            .attr('text-anchor','end');
+                            .attr('text-anchor','end')
+
                         d._portsInputs_labels.exit().remove();
 
                         var y = (d.h/2) - ((numInputs - 1)/2)*13;
