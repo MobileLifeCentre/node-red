@@ -282,7 +282,7 @@ RED.view = function() {
             var minY = 0;
             for (var n in moving_set) {
                 var node = moving_set[n];
-                d3.select("#node" + node.n.id.replace(".","")).classed("node_moving", true);
+                node.moving = true;
                 node.n.x = mousePos[0]+node.dx;
                 node.n.y = mousePos[1]+node.dy;
                 if (d3.event.shiftKey && moving_set.length == 1) {
@@ -344,7 +344,7 @@ RED.view = function() {
                     // We check if use is leaving the node in a link
                     if (link_hovered) dropNodeInLink(mousedown_node);
                     var node = moving_set[i];
-                    d3.select("#node" + node.n.id.replace(".","")).classed("node_moving", false);
+                    node.moving = false;
                     ns.push({n:node.n, ox:node.ox, oy:node.oy});
                 }
                 RED.history.push({t:'move',nodes:ns,dirty:dirty});
@@ -993,7 +993,8 @@ RED.view = function() {
                 if (d._def.button) {
                     var nodeButtonGroup = node.append('svg:g')
                         .attr("transform",function(d) { return "translate("+((d._def.align == "right") ? 94 : -25)+",2)"; })
-                        .attr("class",function(d) { return "node_button "+((d._def.align == "right") ? "node_right_button" : "node_left_button"); });
+                        .attr("class",function(d) { return "node_button "+((d._def.align == "right") ? "node_right_button" : "node_left_button"); })
+                        .classed("node_moving", function(d) { return d.moving;});
                     nodeButtonGroup.append('rect')
                         .attr("width", 32)
                         .attr("height",node_height-4)
