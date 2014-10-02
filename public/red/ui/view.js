@@ -992,7 +992,7 @@ RED.view = function() {
 
                 if (d._def.button) {
                     var nodeButtonGroup = node.append('svg:g')
-                        .attr("transform",function(d) { return "translate("+((d._def.align == "right") ? 94 : -25)+",2)"; })
+                        .attr("transform",function(d) { return "translate("+((d._def.align == "right") ? 94 : -25)+"px,2px)"; })
                         .attr("class",function(d) { return "node_button "+((d._def.align == "right") ? "node_right_button" : "node_left_button"); })
                         .classed("node_moving", function(d) { return d.moving;});
                     nodeButtonGroup.append('rect')
@@ -1076,7 +1076,7 @@ RED.view = function() {
                     }
 
                     var thisNode = d3.select(this);
-                    thisNode.attr("transform", function(d) { return "translate(" + (d.x-d.w/2) + "," + (d.y-d.h/2) + ")"; });
+                    thisNode.attr("transform", function(d) { return "translate(" + (d.x-d.w/2) + "px," + (d.y-d.h/2) + "px)"; });
                     thisNode.selectAll(".node")
                         .attr("width", function(d){return d.w})
                         .attr("height", function(d){return d.h})
@@ -1247,7 +1247,7 @@ RED.view = function() {
                             if (d._def.button.toggle && !d[d._def.button.toggle]) {
                                 x = x - 8;
                             }
-                            return "translate("+x+",2)";
+                            return "translate("+x+"px,2px)";
                     });
                     thisNode.selectAll('.node_right_button rect').attr("fill-opacity",function(d){
                             if (d._def.button.toggle) {
@@ -1256,7 +1256,7 @@ RED.view = function() {
                             return 1;
                     });
 
-                    thisNode.selectAll('.node_badge_group').attr("transform",function(d){return "translate("+(d.w-40)+","+(d.h+3)+")";});
+                    thisNode.selectAll('.node_badge_group').attr("transform",function(d){return "translate("+(d.w-40)+"px,"+(d.h+3)+"px)";});
                     thisNode.selectAll('text.node_badge_label').text(function(d,i) {
                         if (d._def.badge) {
                             if (typeof d._def.badge == "function") {
